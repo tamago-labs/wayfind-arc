@@ -1,0 +1,15 @@
+
+{
+  "name": "wayfind-arc-monorepo",
+  "private": true,
+  "workspaces": [
+    "mcp",
+    "skills"
+  ],
+  "scripts": {
+    "build:mcp": "npm run build --workspace=@tamago-labs/wayfind-arc-mcp",
+    "build:skills": "npm run build --workspace=@tamago-labs/arc-agent-skills",
+    "publish:mcp": "npm publish --workspace=@tamago-labs/wayfind-arc-mcp",
+    "publish:skills": "npm publish --workspace=@tamago-labs/arc-agent-skills"
+  }
+}
