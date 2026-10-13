@@ -13,7 +13,6 @@ export default function PortfolioPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold mb-6">Portfolio</h1>
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
           <NetworkSelector selected={selectedChain} onSelect={setSelectedChain} />

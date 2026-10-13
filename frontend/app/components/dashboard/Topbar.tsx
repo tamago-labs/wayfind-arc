@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Wallet, ChevronDown, Copy, Check, Circle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@/contexts/WalletContext';
@@ -8,11 +9,22 @@ import { truncate, getGradient } from '@/lib/wallet';
 import { SUPPORTED_CHAINS } from '@/lib/chains';
 import { WalletModal } from './WalletModal';
 
+const PAGE_TITLES: Record<string, string> = {
+  '/dashboard': 'New Chat',
+  '/dashboard/portfolio': 'Portfolio',
+  '/dashboard/explore': 'Explore',
+  '/dashboard/grok-bot': 'Use in Grok Bot',
+  '/dashboard/chats': 'Saved Chats',
+};
+
 export default function Topbar() {
+  const pathname = usePathname();
   const { address, chain, disconnect, switchToChain } = useWallet();
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const pageTitle = PAGE_TITLES[pathname] || 'Dashboard';
 
   const handleCopy = async () => {
     if (!address) return;
@@ -33,7 +45,8 @@ export default function Topbar() {
 
   return (
     <>
-      <header className="h-14 sticky top-0 z-20 bg-dark/80 backdrop-blur border-b border-border3/50 flex items-center justify-end px-6">
+      <header className="h-14 sticky top-0 z-20 bg-dark/80 backdrop-blur border-b border-border3/50 flex items-center justify-between px-6">
+        <p className="font-display text-sm font-semibold text-white/70">{pageTitle}</p>
         {address ? (
           <div className="relative flex items-center gap-3">
             <button

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useWallet } from '@/contexts/WalletContext';
-import { truncate, getGradient } from '@/lib/wallet';
 import { fetchUnifiedBalance, type UnifiedBalanceResult } from '@/lib/unified-balance';
 import type { ChainConfig } from '@/lib/chains';
 
@@ -14,8 +14,7 @@ export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
   const { address, chainId, getRawProvider } = useWallet();
   const [balance, setBalance] = useState<UnifiedBalanceResult | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const gradient = getGradient(address);
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   useEffect(() => {
     if (!address || !chainId) {
@@ -46,36 +45,38 @@ export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
   }
 
   return (
-    <div className="bg-surface border border-border3/50 rounded-2xl p-6">
+    <div className="bg-surface border border-border3/50 rounded-2xl p-6 relative">
       <p className="text-[12px] text-white/30 uppercase tracking-wider mb-1">Unified Balance</p>
-      <p className="text-2xl font-semibold mb-4">
-        {loading ? '—' : balance ? `${balance.totalConfirmed} USDC` : '0.00'} USDC
-      </p>
+      <div
+        className="relative inline-block"
+        onMouseEnter={() => setShowBreakdown(true)}
+        onMouseLeave={() => setShowBreakdown(false)}
+      >
+        <p className="text-2xl font-semibold cursor-help">
+          {loading ? '— USDC' : balance ? `${balance.totalConfirmed} USDC` : '0.00 USDC'}
+        </p>
 
-      {balance && balance.breakdown.length > 0 && (
-        <div className="space-y-2 mb-4">
-          {balance.breakdown.map((item) => (
-            <div key={item.chain} className="flex items-center justify-between text-[12px]">
-              <span className="text-white/40">{item.chain}</span>
-              <span className="text-white/60">{item.confirmedBalance} USDC</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex items-center gap-3">
-        <div
-          style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
-          className="w-8 h-8 rounded-full flex items-center justify-center"
-        >
-          <span className="text-[11px] font-bold text-white/90">
-            {address.slice(2, 4).toUpperCase()}
-          </span>
-        </div>
-        <div>
-          <p className="font-mono text-[12px] text-white/50">{truncate(address)}</p>
-          <p className="text-[11px] text-white/30">{selectedChain.name}</p>
-        </div>
+        <AnimatePresence>
+          {showBreakdown && balance && balance.breakdown.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-0 top-full mt-2 bg-dark border border-border3/50 rounded-xl p-4 min-w-[200px] z-30 shadow-xl"
+            >
+              <p className="text-[11px] text-white/30 uppercase tracking-wider mb-2">Breakdown by Network</p>
+              <div className="space-y-1.5 max-h-[200px] overflow-y-auto scrollbar-hide">
+                {balance.breakdown.map((item) => (
+                  <div key={item.chain} className="flex items-center justify-between text-[12px] gap-4">
+                    <span className="text-white/40 truncate">{item.chain}</span>
+                    <span className="text-white/60 shrink-0">{item.confirmedBalance}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

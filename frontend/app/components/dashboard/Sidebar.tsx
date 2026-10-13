@@ -7,7 +7,7 @@ import { Plus, PieChart, Compass, Bot, Archive, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navItems = [
-  { href: '/dashboard/new-chat', label: 'New Chat', icon: Plus },
+  { href: '/dashboard', label: 'New Chat', icon: Plus },
   { href: '/dashboard/portfolio', label: 'Portfolio', icon: PieChart },
   { href: '/dashboard/explore', label: 'Explore', icon: Compass },
   { href: '/dashboard/grok-bot', label: 'Use in Grok Bot', icon: Bot },
