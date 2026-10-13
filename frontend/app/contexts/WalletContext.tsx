@@ -1,8 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { ethers } from "ethers";
 import { discoverWallets, connectEVMWallet, switchChain, type EVMWallet } from "@/lib/evm-wallets";
 import { SUPPORTED_CHAINS, type ChainConfig } from "@/lib/chains";
+import type { EIP1193Provider } from "@/lib/evm-wallets";
 
 type WalletType = "evm" | null;
 
@@ -11,6 +13,8 @@ interface WalletState {
   address: string;
   chainId?: number;
   chain?: ChainConfig;
+  provider?: ethers.BrowserProvider;
+  rawProvider?: EIP1193Provider;
   evmWallets: EVMWallet[];
   isConnecting: boolean;
   error: string | null;
@@ -48,7 +52,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const connectEVM = useCallback(async (wallet: EVMWallet) => {
     setState((s) => ({ ...s, isConnecting: true, error: null }));
     try {
-      const { address, chainId } = await connectEVMWallet(wallet);
+      const { address, chainId, provider } = await connectEVMWallet(wallet);
       const chain = SUPPORTED_CHAINS.find((c) => c.id === chainId);
       setState((s) => ({
         ...s,
@@ -56,6 +60,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         address,
         chainId,
         chain,
+        provider,
+        rawProvider: wallet.provider,
         isConnecting: false,
       }));
       try { localStorage.setItem("wayfind:wallet-type", "evm"); } catch {}
