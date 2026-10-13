@@ -18,7 +18,7 @@ const steps = [
   {
     num: '03',
     title: 'Put your bot to work',
-    description: <>Your bot can be an <span className="text-white/70 font-medium">on-chain operator</span> posting protocol data, a <span className="text-white/70 font-medium">writer</span> publishing on-chain content, or an <span className="text-white/70 font-medium">automator</span> handling tasks like sending USDC payroll with payslips — all while you sleep.</>,
+    description: <>Turn your bot into an <span className="text-white/70 font-medium">onchain operator</span> that queries protocol data, a <span className="text-white/70 font-medium">publisher</span> that posts onchain content, or an <span className="text-white/70 font-medium">automator</span> that handles tasks like USDC payroll and payslips — 24/7.</>,
     example: null,
   },
   {

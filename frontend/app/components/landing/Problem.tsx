@@ -33,7 +33,7 @@ export default function Problem() {
 
             <Section>
               <p className="mt-6 text-[15px] text-white/50 leading-relaxed">
-                Wayfind connects Grok Bot to Arc's onchain ecosystem with the data and tools to take action. From <span className="text-accent font-semibold">querying protocol data</span> to <span className="text-accent font-semibold">executing swaps</span> and automating financial workflows, your bot can start operating onchain.
+                Wayfind gives Grok Bot the data and tools to <span className="text-accent font-semibold">operate on Arc</span> — from querying protocols and swapping assets to earning yield and automating payroll, all through your <span className="text-accent font-semibold">AI teammate</span>.
               </p>
             </Section>
           </div>
