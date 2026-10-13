@@ -4,9 +4,12 @@
   "private": true,
   "workspaces": [
     "mcp",
-    "skills"
+    "skills",
+    "frontend"
   ],
   "scripts": {
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:frontend": "npm run build --workspace=frontend",
     "build:mcp": "npm run build --workspace=@tamago-labs/wayfind-arc-mcp",
     "build:skills": "npm run build --workspace=@tamago-labs/arc-agent-skills",
     "publish:mcp": "npm publish --workspace=@tamago-labs/wayfind-arc-mcp",
