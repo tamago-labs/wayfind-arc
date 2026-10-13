@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useWallet } from '@/contexts/WalletContext';
+import { usePrice } from '@/contexts/PriceContext';
 import { fetchUnifiedBalance, type UnifiedBalanceResult } from '@/lib/unified-balance';
 import type { ChainConfig } from '@/lib/chains';
 import DepositModal from './DepositModal';
@@ -15,6 +16,7 @@ interface UnifiedBalanceProps {
 
 export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
   const { address, chainId, getAdapter } = useWallet();
+  const { getPrice } = usePrice();
   const [balance, setBalance] = useState<UnifiedBalanceResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -57,9 +59,19 @@ export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
         onMouseEnter={() => setShowBreakdown(true)}
         onMouseLeave={() => setShowBreakdown(false)}
       >
-        <p className="text-2xl font-semibold cursor-help">
-          {loading ? '— USDC' : balance ? `${balance.totalConfirmed} USDC` : '0.00 USDC'}
-        </p>
+        <div className="flex items-baseline gap-2">
+          <p className="text-2xl font-semibold cursor-help">
+            {loading ? '— USDC' : balance ? `${balance.totalConfirmed} USDC` : '0.00 USDC'}
+          </p>
+          {(() => {
+            if (loading || !balance) return null;
+            const usdcPrice = getPrice('USDC');
+            const usdValue = usdcPrice
+              ? '$' + (parseFloat(balance.totalConfirmed.replace(',', '')) * usdcPrice.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : null;
+            return usdValue ? <span className="text-[13px] text-white/30">{usdValue}</span> : null;
+          })()}
+        </div>
 
         <AnimatePresence>
           {showBreakdown && balance && balance.chains.length > 0 && (
