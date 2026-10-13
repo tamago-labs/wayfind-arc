@@ -31,8 +31,8 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link href="#pricing" className="text-[13px] font-display font-medium bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/80 transition-colors">
-            Get Started
+          <Link href="/dashboard" className="text-[13px] font-display font-medium bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/80 transition-colors">
+            Dashboard
           </Link>
         </div>
 
@@ -53,8 +53,8 @@ export default function Header() {
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className="block text-[14px] text-white/50 hover:text-white font-display font-medium transition-colors">{link.label}</Link>
             ))}
-            <Link href="#pricing" onClick={() => setOpen(false)} className="block mt-4 text-center text-[13px] font-display font-medium bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/80 transition-colors">
-              Get Started
+            <Link href="/dashboard" onClick={() => setOpen(false)} className="block mt-4 text-center text-[13px] font-display font-medium bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/80 transition-colors">
+              Dashboard
             </Link>
           </motion.div>
         )}
