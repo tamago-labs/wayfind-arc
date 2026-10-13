@@ -5,42 +5,26 @@ import Section from './Section';
 const steps = [
   {
     num: '01',
-    title: 'Build your risk profile',
-    description: (
-      <>
-        Answer a short AI questionnaire about your <span className="text-white/70 font-medium">goals, time horizon, and risk tolerance</span>. Wayfind uses your answers to understand what risk means <span className="text-accent font-semibold">for you</span>.
-      </>
-    ),
+    title: 'Download a template',
+    description: <>Download a Grok Bot template from <span className="text-white/70 font-medium">wayfind.click</span>. The template opens directly in the Grok Bot app on desktop or mobile.</>,
     example: null,
   },
   {
     num: '02',
-    title: 'Get your API key',
-    description: (
-      <>
-        Your API key links your risk profile to every bot you create. One setup, all your bots trade with your <span className="text-white/70 font-medium">risk context</span>.
-      </>
-    ),
+    title: 'Set up your bot',
+    description: <>Name your bot and ask the bot to <span className="text-white/70 font-medium">start setup</span>. You can provide your own private key if omit the MCP will <span className="text-white/70 font-medium">auto-create</span> a new wallet inside bot's computer for you.</>,
     example: null,
   },
   {
     num: '03',
-    title: 'Set up your bot',
-    description: (
-      <>
-        Import a template, set your API key, and create an <span className="text-white/70 font-medium">agentic wallet</span> on the bot's computer. Then ask your agent anything.
-      </>
-    ),
+    title: 'Put your bot to work',
+    description: <>Your bot can be an <span className="text-white/70 font-medium">on-chain operator</span> posting protocol data, a <span className="text-white/70 font-medium">writer</span> publishing on-chain content, or an <span className="text-white/70 font-medium">automator</span> handling tasks like sending USDC payroll with payslips — all while you sleep.</>,
     example: null,
   },
   {
     num: '04',
-    title: 'Schedule rebalancing jobs',
-    description: (
-      <>
-        Your bot monitors your portfolio and <span className="text-white/70 font-medium">prepares swap quotes</span> through <span className="text-white/70 font-medium">OKX DEX</span> when positions drift. You review and approve each trade before it executes.
-      </>
-    ),
+    title: 'Use on other platforms',
+    description: <>Wayfind works natively with Grok Bot. For other AI platforms, import <span className="text-white/70 font-medium">Agent Skills</span> or set up <span className="text-white/70 font-medium">MCP</span> to connect.</>,
     example: null,
   },
 ];
