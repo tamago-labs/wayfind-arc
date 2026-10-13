@@ -13,7 +13,7 @@ export interface UnifiedBalanceResult {
 }
 
 export async function fetchUnifiedBalance(
-  provider: ethers.BrowserProvider,
+  provider: ethers.Provider,
   address: string,
   chainId: number
 ): Promise<UnifiedBalanceResult> {

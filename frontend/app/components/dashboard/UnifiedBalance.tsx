@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import { useWallet } from '@/contexts/WalletContext';
 import { truncate, getGradient } from '@/lib/wallet';
 import { fetchUnifiedBalance, type UnifiedBalanceResult } from '@/lib/unified-balance';
@@ -12,25 +11,30 @@ interface UnifiedBalanceProps {
 }
 
 export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
-  const { address, rawProvider, chainId } = useWallet();
+  const { address, chainId, getRawProvider } = useWallet();
   const [balance, setBalance] = useState<UnifiedBalanceResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const gradient = getGradient(address);
 
   useEffect(() => {
-    if (!address || !rawProvider || !chainId) {
+    if (!address || !chainId) {
+      setBalance(null);
+      return;
+    }
+
+    const rawProvider = getRawProvider();
+    if (!rawProvider) {
       setBalance(null);
       return;
     }
 
     setLoading(true);
-    const provider = new ethers.BrowserProvider(rawProvider as unknown as ethers.Eip1193Provider);
-    fetchUnifiedBalance(provider, address, chainId)
+    fetchUnifiedBalance(rawProvider as never, address, selectedChain.id)
       .then(setBalance)
       .catch(() => setBalance(null))
       .finally(() => setLoading(false));
-  }, [address, rawProvider, chainId]);
+  }, [address, chainId, selectedChain, getRawProvider]);
 
   if (!address) {
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import { ethers } from "ethers";
 import { discoverWallets, connectEVMWallet, switchChain, type EVMWallet } from "@/lib/evm-wallets";
 import { SUPPORTED_CHAINS, type ChainConfig } from "@/lib/chains";
@@ -24,6 +24,7 @@ interface WalletContextValue extends WalletState {
   connectEVM: (wallet: EVMWallet) => Promise<void>;
   disconnect: () => void;
   switchToChain: (chainId: number) => Promise<void>;
+  getRawProvider: () => EIP1193Provider | undefined;
 }
 
 const WalletContext = createContext<WalletContextValue | null>(null);
@@ -42,6 +43,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     isConnecting: false,
     error: null,
   });
+  const rawProviderRef = useRef<EIP1193Provider | undefined>(undefined);
 
   useEffect(() => {
     discoverWallets().then((wallets) => {
@@ -54,6 +56,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     try {
       const { address, chainId, provider } = await connectEVMWallet(wallet);
       const chain = SUPPORTED_CHAINS.find((c) => c.id === chainId);
+      rawProviderRef.current = wallet.provider;
       setState((s) => ({
         ...s,
         type: "evm",
@@ -75,7 +78,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const disconnect = useCallback(() => {
-    setState((s) => ({ ...s, type: null, address: "", chainId: undefined, chain: undefined }));
+    rawProviderRef.current = undefined;
+    setState((s) => ({ ...s, type: null, address: "", chainId: undefined, chain: undefined, rawProvider: undefined }));
     try { localStorage.removeItem("wayfind:wallet-type"); } catch {}
   }, []);
 
@@ -87,8 +91,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, chainId, chain }));
   }, [state.evmWallets]);
 
+  const getRawProvider = useCallback(() => rawProviderRef.current, []);
+
   return (
-    <WalletContext.Provider value={{ ...state, connectEVM, disconnect, switchToChain }}>
+    <WalletContext.Provider value={{ ...state, connectEVM, disconnect, switchToChain, getRawProvider }}>
       {children}
     </WalletContext.Provider>
   );
