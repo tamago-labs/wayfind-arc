@@ -25,11 +25,11 @@ export default function TokenDetailClient({ token }: { token: TokenConfig }) {
         <div className="lg:col-span-2">
           <ActionPanel token={token} earnApy={earnApy} borrowApy={borrowApy} />
         </div>
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-6">
           <PriceChart token={token} />
+          <TokenDetailInfo token={token} priceData={priceData} earnApy={earnApy} borrowApy={borrowApy} />
         </div>
       </div>
-      <TokenDetailInfo token={token} priceData={priceData} earnApy={earnApy} borrowApy={borrowApy} />
     </div>
   );
 }
