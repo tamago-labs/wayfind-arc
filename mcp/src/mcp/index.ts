@@ -2,6 +2,7 @@ import type { McpTool } from "../types";
 import { ArcGetWalletAddressTool } from "./arc/get_wallet_address_tool";
 import { ArcGetBalanceTool } from "./arc/get_balance_tool";
 import { ArcGetUnifiedBalanceTool } from "./arc/get_unified_balance_tool";
+import { ArcGetSupportedChainsTool } from "./arc/get_supported_chains_tool";
 import { ArcSendTokensTool } from "./arc/send_tokens_tool";
 import { ArcDepositUnifiedBalanceTool } from "./arc/deposit_unified_tool";
 import { ArcSpendUnifiedBalanceTool } from "./arc/spend_unified_tool";
@@ -14,6 +15,7 @@ export const McpTools: Record<string, McpTool> = {
   ArcGetWalletAddress: ArcGetWalletAddressTool,
   ArcGetBalance: ArcGetBalanceTool,
   ArcGetUnifiedBalance: ArcGetUnifiedBalanceTool,
+  ArcGetSupportedChains: ArcGetSupportedChainsTool,
   ArcSendTokens: ArcSendTokensTool,
   ArcDepositUnifiedBalance: ArcDepositUnifiedBalanceTool,
   ArcSpendUnifiedBalance: ArcSpendUnifiedBalanceTool,

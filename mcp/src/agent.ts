@@ -131,6 +131,30 @@ export class Agent {
     };
   }
 
+  async getSupportedChains(): Promise<any> {
+    const balance = await this.getUnifiedBalance();
+    const chains: Array<{ chain: string; confirmed: string; pending: string }> = [];
+    if (balance.breakdown) {
+      for (const group of balance.breakdown) {
+        if (group.breakdown) {
+          for (const item of group.breakdown) {
+            chains.push({
+              chain: item.chain,
+              confirmed: item.confirmedBalance ?? "0",
+              pending: item.pendingBalance ?? "0",
+            });
+          }
+        }
+      }
+    }
+    return {
+      token: balance.token,
+      totalConfirmed: balance.totalConfirmedBalance ?? "0",
+      totalPending: balance.totalPendingBalance ?? "0",
+      chains,
+    };
+  }
+
   async depositUnifiedBalance(amount: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, deposit } = await import("@circle-fin/unified-balance-kit");
