@@ -8,7 +8,7 @@ export const ArcDepositUnifiedBalanceTool: McpTool = {
   schema: {
     amount: z.string().describe("Amount of USDC to deposit (e.g. '100.5')"),
   },
-  handler: async (agent: Agent, input: Record<string, any>) => {
+  handler: async (agent: Agent, input: any) => {
     return agent.depositUnifiedBalance(input.amount);
   },
 };

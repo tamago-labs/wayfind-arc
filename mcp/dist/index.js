@@ -50,6 +50,16 @@ var ArcGetBalanceTool = {
   }
 };
 
+// src/mcp/arc/get_unified_balance_tool.ts
+var ArcGetUnifiedBalanceTool = {
+  name: "arc_get_unified_balance",
+  description: "Get Circle Unified Balance. Shows total USDC balance and breakdown by network.",
+  schema: {},
+  handler: async (agent, _input) => {
+    return agent.getUnifiedBalance();
+  }
+};
+
 // src/mcp/arc/send_tokens_tool.ts
 var import_zod = require("zod");
 var ArcSendTokensTool = {
@@ -94,28 +104,26 @@ var ArcSpendUnifiedBalanceTool = {
 };
 
 // src/mcp/arc/get_prices_tool.ts
-var import_zod4 = require("zod");
 var ArcGetPricesTool = {
   name: "arc_get_prices",
-  description: "Get token prices from CoinGecko by symbol. Supports: USDC, EURC, cirBTC, WETH.",
-  schema: {
-    symbols: import_zod4.z.array(import_zod4.z.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])")
-  },
-  handler: async (agent, input) => {
-    return agent.getPrices(input.symbols);
+  description: "Get all token prices from CoinGecko. Returns prices for all configured tokens on the current chain (USDC, EURC, cirBTC, WETH).",
+  schema: {},
+  handler: async (agent, _input) => {
+    const symbols = agent.getPriceSymbols();
+    return agent.getPrices(symbols);
   }
 };
 
 // src/mcp/arc/swap_tokens_tool.ts
-var import_zod5 = require("zod");
+var import_zod4 = require("zod");
 var ArcSwapTokensTool = {
   name: "arc_swap_tokens",
   description: "Swap tokens on Arc via Circle Swap Kit. Symbol is resolved from token config (e.g. 'USDC', 'WETH', 'cirBTC').",
   schema: {
-    fromSymbol: import_zod5.z.string().describe("Token to swap from (e.g. 'WETH')"),
-    toSymbol: import_zod5.z.string().describe("Token to swap to (e.g. 'USDC')"),
-    amount: import_zod5.z.string().describe("Amount of from token to swap"),
-    slippagePercent: import_zod5.z.string().optional().describe("Slippage tolerance (default: '0.5')")
+    fromSymbol: import_zod4.z.string().describe("Token to swap from (e.g. 'WETH')"),
+    toSymbol: import_zod4.z.string().describe("Token to swap to (e.g. 'USDC')"),
+    amount: import_zod4.z.string().describe("Amount of from token to swap"),
+    slippagePercent: import_zod4.z.string().optional().describe("Slippage tolerance (default: '0.5')")
   },
   handler: async (agent, input) => {
     return agent.swapTokens(input.fromSymbol, input.toSymbol, input.amount, input?.slippagePercent);
@@ -123,14 +131,14 @@ var ArcSwapTokensTool = {
 };
 
 // src/mcp/arc/earn_deposit_tool.ts
-var import_zod6 = require("zod");
+var import_zod5 = require("zod");
 var ArcEarnDepositTool = {
   name: "arc_earn_deposit",
   description: "Deposit tokens into a Circle Earn vault to earn yield. Symbol is resolved from token config.",
   schema: {
-    symbol: import_zod6.z.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
-    amount: import_zod6.z.string().describe("Amount to deposit"),
-    vaultAddress: import_zod6.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: import_zod5.z.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
+    amount: import_zod5.z.string().describe("Amount to deposit"),
+    vaultAddress: import_zod5.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnDeposit(input.symbol, input.amount, input?.vaultAddress);
@@ -138,14 +146,14 @@ var ArcEarnDepositTool = {
 };
 
 // src/mcp/arc/earn_withdraw_tool.ts
-var import_zod7 = require("zod");
+var import_zod6 = require("zod");
 var ArcEarnWithdrawTool = {
   name: "arc_earn_withdraw",
   description: "Withdraw tokens from a Circle Earn vault. Symbol is resolved from token config.",
   schema: {
-    symbol: import_zod7.z.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
-    amount: import_zod7.z.string().describe("Amount to withdraw"),
-    vaultAddress: import_zod7.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: import_zod6.z.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
+    amount: import_zod6.z.string().describe("Amount to withdraw"),
+    vaultAddress: import_zod6.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnWithdraw(input.symbol, input.amount, input?.vaultAddress);
@@ -156,6 +164,7 @@ var ArcEarnWithdrawTool = {
 var McpTools = {
   ArcGetWalletAddress: ArcGetWalletAddressTool,
   ArcGetBalance: ArcGetBalanceTool,
+  ArcGetUnifiedBalance: ArcGetUnifiedBalanceTool,
   ArcSendTokens: ArcSendTokensTool,
   ArcDepositUnifiedBalance: ArcDepositUnifiedBalanceTool,
   ArcSpendUnifiedBalance: ArcSpendUnifiedBalanceTool,
@@ -281,10 +290,9 @@ var Agent = class _Agent {
     if (!token) return null;
     return this.config.chain === "testnet" ? token.addresses.testnet : token.addresses.mainnet;
   }
-  getAdapter() {
-    return (0, import_adapter_ethers_v6.createEthersAdapterFromProvider)({
-      provider: this.signer,
-      capabilities: {}
+  async getAdapter() {
+    return (0, import_adapter_ethers_v6.createEthersAdapterFromPrivateKey)({
+      privateKey: this.config.privateKey
     });
   }
   async getBalance() {
@@ -312,6 +320,21 @@ var Agent = class _Agent {
     }
     return result;
   }
+  getPriceSymbols() {
+    return this.tokens.map((t) => t.symbol);
+  }
+  async getUnifiedBalance() {
+    const adapter = await this.getAdapter();
+    const { createUnifiedBalanceKitContext, getBalances } = await import("@circle-fin/unified-balance-kit");
+    const context = createUnifiedBalanceKitContext();
+    const networkType = this.config.chain === "testnet" ? "testnet" : "mainnet";
+    const result = await getBalances(context, {
+      sources: [{ adapter }],
+      networkType,
+      includePending: true
+    });
+    return result;
+  }
   async sendTokens(symbol, to, amount) {
     const token = this.getToken(symbol);
     if (!token) throw new Error(`Unknown token: ${symbol}`);
@@ -330,28 +353,33 @@ var Agent = class _Agent {
       blockNumber: receipt?.blockNumber
     };
   }
-  async depositUnifiedBalance(amount, symbol = "USDC") {
-    const adapter = this.getAdapter();
+  async depositUnifiedBalance(amount) {
+    const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, deposit } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
     const result = await deposit(context, {
       from: { adapter, chain: getCircleChainName(this.config) },
       amount,
-      tokenSymbol: symbol
+      token: "USDC"
     });
     return result;
   }
-  async spendUnifiedBalance(amount, recipient, targetChain, symbol = "USDC") {
-    const adapter = this.getAdapter();
+  async spendUnifiedBalance(amount, recipient, targetChain) {
+    const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, spend } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
-    const params = {
-      from: { adapter, chain: getCircleChainName(this.config) },
-      amount,
-      tokenSymbol: symbol
+    const to = {
+      adapter,
+      chain: getCircleChainName(this.config)
     };
-    if (recipient) params.recipient = recipient;
-    if (targetChain) params.targetChain = targetChain;
+    if (recipient) to.recipientAddress = recipient;
+    const params = {
+      amount,
+      token: "USDC",
+      from: [{ adapter }],
+      to
+    };
+    if (targetChain) to.chain = targetChain;
     const result = await spend(context, params);
     return result;
   }
@@ -382,7 +410,7 @@ var Agent = class _Agent {
     return prices;
   }
   async swapTokens(fromSymbol, toSymbol, amount, slippagePercent = "0.5") {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createSwapKitContext, swap } = await import("@circle-fin/swap-kit");
     const context = createSwapKitContext();
     const result = await swap(context, {
@@ -395,7 +423,7 @@ var Agent = class _Agent {
     return result;
   }
   async earnDeposit(symbol, amount, vaultAddress) {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createEarnKitContext, deposit } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
     const params = {
@@ -408,7 +436,7 @@ var Agent = class _Agent {
     return result;
   }
   async earnWithdraw(symbol, amount, vaultAddress) {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createEarnKitContext, withdraw } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
     const params = {

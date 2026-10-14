@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { createEthersAdapterFromProvider } from "@circle-fin/adapter-ethers-v6";
+import { createEthersAdapterFromPrivateKey } from "@circle-fin/adapter-ethers-v6";
 import { loadArcConfig, getCircleChainName, type ArcConfig } from "./config";
 import tokens from "./data/arc-tokens.json";
 
@@ -53,10 +53,9 @@ export class Agent {
     return this.config.chain === "testnet" ? token.addresses.testnet : token.addresses.mainnet;
   }
 
-  private getAdapter() {
-    return createEthersAdapterFromProvider({
-      provider: this.signer as unknown as ethers.Eip1193Provider,
-      capabilities: {},
+  private async getAdapter() {
+    return createEthersAdapterFromPrivateKey({
+      privateKey: this.config.privateKey,
     });
   }
 
@@ -94,6 +93,22 @@ export class Agent {
     return this.tokens.map((t) => t.symbol);
   }
 
+  async getUnifiedBalance(): Promise<any> {
+    const adapter = await this.getAdapter();
+    const { createUnifiedBalanceKitContext, getBalances } = await import("@circle-fin/unified-balance-kit");
+    const context = createUnifiedBalanceKitContext();
+
+    const networkType = this.config.chain === "testnet" ? "testnet" : "mainnet";
+
+    const result = await getBalances(context, {
+      sources: [{ adapter }],
+      networkType,
+      includePending: true,
+    });
+
+    return result;
+  }
+
   async sendTokens(symbol: string, to: string, amount: string): Promise<any> {
     const token = this.getToken(symbol);
     if (!token) throw new Error(`Unknown token: ${symbol}`);
@@ -116,32 +131,38 @@ export class Agent {
     };
   }
 
-  async depositUnifiedBalance(amount: string, symbol: string = "USDC"): Promise<any> {
-    const adapter = this.getAdapter();
+  async depositUnifiedBalance(amount: string): Promise<any> {
+    const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, deposit } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
 
     const result = await deposit(context, {
       from: { adapter, chain: getCircleChainName(this.config) },
       amount,
-      tokenSymbol: symbol,
+      token: "USDC",
     });
 
     return result;
   }
 
-  async spendUnifiedBalance(amount: string, recipient?: string, targetChain?: string, symbol: string = "USDC"): Promise<any> {
-    const adapter = this.getAdapter();
+  async spendUnifiedBalance(amount: string, recipient?: string, targetChain?: string): Promise<any> {
+    const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, spend } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
 
-    const params: any = {
-      from: { adapter, chain: getCircleChainName(this.config) },
-      amount,
-      tokenSymbol: symbol,
+    const to: any = {
+      adapter,
+      chain: getCircleChainName(this.config),
     };
-    if (recipient) params.recipient = recipient;
-    if (targetChain) params.targetChain = targetChain;
+    if (recipient) to.recipientAddress = recipient;
+
+    const params: any = {
+      amount,
+      token: "USDC",
+      from: [{ adapter }],
+      to,
+    };
+    if (targetChain) to.chain = targetChain;
 
     const result = await spend(context, params);
     return result;
@@ -183,7 +204,7 @@ export class Agent {
   }
 
   async swapTokens(fromSymbol: string, toSymbol: string, amount: string, slippagePercent: string = "0.5"): Promise<any> {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createSwapKitContext, swap } = await import("@circle-fin/swap-kit");
     const context = createSwapKitContext();
 
@@ -199,7 +220,7 @@ export class Agent {
   }
 
   async earnDeposit(symbol: string, amount: string, vaultAddress?: string): Promise<any> {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createEarnKitContext, deposit } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
@@ -215,7 +236,7 @@ export class Agent {
   }
 
   async earnWithdraw(symbol: string, amount: string, vaultAddress?: string): Promise<any> {
-    const adapter = this.getAdapter();
+    const adapter = await this.getAdapter();
     const { createEarnKitContext, withdraw } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
