@@ -1,6 +1,6 @@
 {
   "name": "@tamago-labs/wayfind-arc-mcp",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -25,8 +25,5 @@
     "@types/node": "^22.10.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3"
-  },
-  "overrides": {
-    "uuid": "^9.0.1"
   }
 }
