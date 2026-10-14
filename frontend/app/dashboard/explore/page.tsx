@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { usePrice } from '@/contexts/PriceContext';
 import { useEarn } from '@/contexts/EarnContext';
 import { useBorrow } from '@/contexts/BorrowContext';
@@ -46,6 +48,7 @@ function formatChange(value: number | null): string {
 }
 
 export default function ExplorePage() {
+  const router = useRouter();
   const { getPrice, loading: priceLoading } = usePrice();
   const { getBestApy } = useEarn();
   const { getBestBorrowApy } = useBorrow();
@@ -184,7 +187,8 @@ export default function ExplorePage() {
             </thead>
             <tbody>
               {paginated.map((row) => (
-                <tr key={row.symbol} className="border-b border-border3/20 hover:bg-white/[0.02] transition-colors">
+                <tr key={row.symbol} className="border-b border-border3/20 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                  onClick={() => router.push(`/dashboard/token/${row.symbol}`)}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       {row.logo ? (
