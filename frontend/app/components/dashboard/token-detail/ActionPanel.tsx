@@ -11,10 +11,9 @@ type Action = 'Swap' | 'Earn' | 'Borrow';
 interface ActionPanelProps {
   token: TokenConfig;
   earnApy: number | null;
-  borrowApy: number | null;
 }
 
-export default function ActionPanel({ token, earnApy, borrowApy }: ActionPanelProps) {
+export default function ActionPanel({ token, earnApy }: ActionPanelProps) {
   const [active, setActive] = useState<Action>('Swap');
 
   const actions: Action[] = ['Swap', 'Earn', 'Borrow'];
@@ -47,16 +46,9 @@ export default function ActionPanel({ token, earnApy, borrowApy }: ActionPanelPr
           {active === 'Earn' && <EarnPanel token={token} earnApy={earnApy} />}
           {active === 'Borrow' && (
             <div className="bg-surface border border-border3/50 rounded-2xl p-5 min-h-[120px]">
-              <div className="py-4">
-                {borrowApy != null ? (
-                  <>
-                    <p className="text-[13px] text-white/40">Borrow against {token.symbol}</p>
-                    <p className="text-2xl font-semibold text-white/80 mt-2">{(borrowApy * 100).toFixed(2)}%</p>
-                    <p className="text-[11px] text-white/20 mt-1">Borrow APY</p>
-                  </>
-                ) : (
-                  <p className="text-[13px] text-white/40">No borrow markets for {token.symbol}</p>
-                )}
+              <div className="py-6 text-center">
+                <p className="text-[13px] text-white/40">Borrow is not ready yet</p>
+                <p className="text-[11px] text-white/20 mt-1">This feature is coming soon</p>
               </div>
             </div>
           )}

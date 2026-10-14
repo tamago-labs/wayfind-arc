@@ -21,12 +21,10 @@ export default function TokenDetailInfo({
   token,
   priceData,
   earnApy,
-  borrowApy,
 }: {
   token: TokenConfig;
   priceData: PriceData | null;
   earnApy: number | null;
-  borrowApy: number | null;
 }) {
   const arcMainnetAddress = token.addresses.arc;
   const arcTestnetAddress = token.addresses.arcTestnet;
@@ -49,7 +47,7 @@ export default function TokenDetailInfo({
         </div>
         <div className="flex items-center justify-between text-[13px]">
           <span className="text-white/30">Best Borrow APY</span>
-          <span className="text-white/70">{borrowApy != null ? `${(borrowApy * 100).toFixed(2)}%` : '—'}</span>
+          <span className="text-white/70">Coming soon</span>
         </div>
 
         {arcMainnetAddress && (

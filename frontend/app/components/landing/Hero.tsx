@@ -44,7 +44,7 @@ export default function Hero() {
             </li>
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
-               Earn &amp; Borrow on <img src="https://icons.llamao.fi/icons/chains/rsz_arc?w=48&h=48" alt="Arc" className="w-4 h-4 inline-block rounded-full" /> <span className="text-accent font-semibold">Arc-Native Apps</span>
+               Earn &amp; Borrow on <img src="https://icons.llamao.fi/icons/chains/rsz_arc?w=48&h=48" alt="Arc" className="w-4 h-4 inline-block rounded-full" /> <span className="text-accent font-semibold">Arc</span>
             </li>
           </ul>
         </Section>

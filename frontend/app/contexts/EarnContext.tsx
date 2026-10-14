@@ -36,12 +36,7 @@ export function EarnProvider({ children }: { children: React.ReactNode }) {
   const fetchedRef = useRef('');
 
   useEffect(() => {
-    if (!chainId) {
-      setLoading(false);
-      return;
-    }
-
-    const chainParam = chainId === 5042 ? 'mainnet' : 'testnet';
+    const chainParam = chainId === 5042 ? 'mainnet' : chainId === 5042002 ? 'testnet' : 'mainnet';
     if (fetchedRef.current === chainParam) return;
     fetchedRef.current = chainParam;
 
