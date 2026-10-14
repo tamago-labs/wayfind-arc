@@ -9,7 +9,7 @@ const templates = [
     description: 'Need setup help? Just ask your bot.',
     available: true,
     logo: 'https://icons.llamao.fi/icons/chains/rsz_arc?w=48&h=48',
-    downloadUrl: 'https://wayfind.click',
+    downloadUrl: 'https://x.ai/bot/IX2bDYMLKqQhe1hYFnXdi',
   },
   {
     chain: 'Solana',

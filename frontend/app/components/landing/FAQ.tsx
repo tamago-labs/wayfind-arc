@@ -6,14 +6,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Section from './Section';
 
 const faqs = [
-  { q: 'What is Wayfind?', a: 'Wayfind is an AI-powered risk intelligence platform for tokenized equities. It helps you understand what you hold, evaluate portfolio risk against your personal profile, and find personalized ways to rebalance or put eligible assets to work.' },
-  { q: 'How does Wayfind personalize my risk?', a: 'Wayfind combines your portfolio with your goals, time horizon, and risk tolerance. After connecting your wallet or simulating a portfolio, you answer a short questionnaire so the AI can evaluate risk in the context of what matters to you.' },
-  { q: 'How do I set up Wayfind on Grok Bot?', a: 'Download a Grok Bot template from wayfind.click. The bot will ask if you want to use your own API key or auto-create a wallet. You can skip everything and start with a demo account.' },
-  { q: 'How is TSLAx different from TSLAon?', a: 'One company like Tesla can have multiple onchain representations — TSLAx, TSLAon, rTSLA — each with different prices, liquidity, and issuers. Wayfind lists every version so you can compare and trade the best option.' },
-  { q: 'Is my private key safe?', a: 'Your Arc private key stays on your bot\'s computer. It is never shared, logged, or sent to Wayfind. Anyone with access to that machine can move funds, so keep your bot environment secure.' },
-  { q: 'What does the risk score mean?', a: 'Your risk score is a personalized view of the risk in your portfolio based on your holdings, market conditions, and risk profile. Wayfind also breaks the score down into the factors contributing to it, so you can understand what is driving your portfolio risk.' },
-  { q: 'What can I do with Wayfind after the risk analysis?', a: 'Wayfind turns the risk analysis into actionable options. Depending on your portfolio and goals, you may see ways to reduce concentration, rebalance your holdings, diversify exposure, or put eligible assets to work through available DeFi opportunities.' },
-  { q: 'How do AI credits work?', a: 'AI credits power deeper analysis and portfolio recommendations on Wayfind. Each credit covers a defined unit of AI work — you only spend them when you run an analysis or request a recommendation.' },
+  { q: 'What is Wayfind Arc?', a: 'A Grok Bot template that combines an MCP server, agent skills, and pre-defined memory to give your bot full control over Arc wallet operations, Unified Balance (deposit/spend cross-chain), token swaps, and earn vault management.' },
+  { q: 'How do I set it up on Grok Bot?', a: 'Download a bot template from the link above, then ask the bot to set it up. It will guide you through connecting your wallet and configuring the environment.' },
+  { q: 'Which chains are supported?', a: 'Arc Mainnet and Testnet. Unified Balance supports cross-chain transfers to Ethereum, Base, Arbitrum, Avalanche, Polygon, Optimism, and more.' },
+  { q: 'Is my private key safe?', a: 'Your private key stays on your bot\'s computer. It is never shared, logged, or sent to any server. Anyone with access to that machine can move funds, so keep your bot environment secure.' },
+  { q: 'What tokens are supported?', a: 'USDC (native gas), EURC, cirBTC, and WETH. Tokens are resolved by symbol — no need to remember contract addresses.' },
+  { q: 'How does cross-chain spend work?', a: 'Deposit USDC into Unified Balance, then spend to any supported chain. The SDK burns USDC on the source chain and mints on the destination via Circle Gateway.' },
+  { q: 'What are earn vaults?', a: 'Earn vaults let you deposit tokens to earn yield. List available vaults with APY, deposit, track your position, and withdraw when ready.' },
 ];
 
 export default function FAQ() {
