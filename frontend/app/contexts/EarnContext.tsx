@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
+import { useWallet } from '@/contexts/WalletContext';
 
 export interface VaultData {
   vaultAddress: string;
@@ -29,15 +30,22 @@ const EarnContext = createContext<EarnContextValue>({
 });
 
 export function EarnProvider({ children }: { children: React.ReactNode }) {
+  const { chainId } = useWallet();
   const [vaults, setVaults] = useState<VaultData[]>([]);
   const [loading, setLoading] = useState(true);
-  const fetchedRef = useRef(false);
+  const fetchedRef = useRef('');
 
   useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+    if (!chainId) {
+      setLoading(false);
+      return;
+    }
 
-    fetch('/api/earn-vaults')
+    const chainParam = chainId === 5042 ? 'mainnet' : 'testnet';
+    if (fetchedRef.current === chainParam) return;
+    fetchedRef.current = chainParam;
+
+    fetch(`/api/earn-vaults?chain=${chainParam}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.vaults) {
@@ -58,7 +66,7 @@ export function EarnProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [chainId]);
 
   const getBestApy = useCallback(
     (asset: string): number | null => {

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { TokenConfig } from '@/lib/tokens';
 import SwapPanel from './SwapPanel';
+import EarnPanel from './EarnPanel';
 
 type Action = 'Swap' | 'Earn' | 'Borrow';
 
@@ -43,21 +44,7 @@ export default function ActionPanel({ token, earnApy, borrowApy }: ActionPanelPr
           transition={{ duration: 0.1 }}
         >
           {active === 'Swap' && <SwapPanel token={token} />}
-          {active === 'Earn' && (
-            <div className="bg-surface border border-border3/50 rounded-2xl p-5 min-h-[120px]">
-              <div className="py-4">
-                {earnApy != null ? (
-                  <>
-                    <p className="text-[13px] text-white/40">Deposit {token.symbol}</p>
-                    <p className="text-2xl font-semibold text-white/80 mt-2">{(earnApy * 100).toFixed(2)}%</p>
-                    <p className="text-[11px] text-white/20 mt-1">APY</p>
-                  </>
-                ) : (
-                  <p className="text-[13px] text-white/40">No earn vaults for {token.symbol}</p>
-                )}
-              </div>
-            </div>
-          )}
+          {active === 'Earn' && <EarnPanel token={token} earnApy={earnApy} />}
           {active === 'Borrow' && (
             <div className="bg-surface border border-border3/50 rounded-2xl p-5 min-h-[120px]">
               <div className="py-4">
