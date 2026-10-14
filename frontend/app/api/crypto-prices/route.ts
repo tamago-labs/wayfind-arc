@@ -1,32 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { getCoingeckoIds } from '@/lib/tokens';
 
-const CMC_API_URL = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest';
-
-export async function GET(request: NextRequest) {
-  const ids = request.nextUrl.searchParams.get('id');
+export async function GET() {
+  const ids = getCoingeckoIds();
 
   if (!ids) {
-    return NextResponse.json({ error: 'id parameter is required' }, { status: 400 });
+    return NextResponse.json({});
   }
 
   try {
-    const url = new URL(CMC_API_URL);
-    url.searchParams.set('id', ids);
-    url.searchParams.set('convert', 'USD');
-    const res = await fetch(url.toString(), {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY || '',
-        'Accept': 'application/json',
-      },
-    });
+    const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
+    url.searchParams.set("vs_currency", "usd");
+    url.searchParams.set("ids", ids);
+    url.searchParams.set("price_change_percentage", "1h,24h,7d,30d");
+
+    const res = await fetch(url.toString());
 
     if (!res.ok) {
-      const data = await res.json();
-      return NextResponse.json({ error: 'Failed to fetch prices', detail: data }, { status: res.status });
+      const text = await res.text();
+      console.error('[crypto-prices] CoinGecko error:', res.status, text);
+      return NextResponse.json({ error: 'Failed to fetch prices', status: res.status }, { status: res.status });
     }
 
     const data = await res.json();
-    return NextResponse.json(data);
+
+    const priceMap: Record<string, any> = {};
+    for (const coin of data) {
+      priceMap[coin.symbol.toUpperCase()] = {
+        price: coin.current_price ?? 0,
+        marketCap: coin.market_cap ?? 0,
+        volume24h: coin.total_volume ?? 0,
+        percentChange1h: coin.price_change_percentage_1h_in_currency ?? 0,
+        percentChange24h: coin.price_change_percentage_24h_in_currency ?? 0,
+        percentChange7d: coin.price_change_percentage_7d_in_currency ?? 0,
+        percentChange30d: coin.price_change_percentage_30d_in_currency ?? 0,
+        circulatingSupply: coin.circulating_supply ?? 0,
+        totalSupply: coin.total_supply ?? 0,
+        maxSupply: coin.max_supply ?? null,
+        lastUpdated: coin.last_updated ?? '',
+      };
+    }
+
+    return NextResponse.json(priceMap);
   } catch (err) {
     console.error('[crypto-prices] error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

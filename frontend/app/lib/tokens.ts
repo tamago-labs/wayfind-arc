@@ -2,6 +2,7 @@ import tokensJson from './tokens.json';
 
 export interface TokenConfig {
   crypto_id: number;
+  coingeckoId: string | null;
   symbol: string;
   name: string;
   decimals: number;
@@ -40,4 +41,8 @@ export function getTokensWithAddress(chainId: number): TokenConfig[] {
 
 export function getTokenBySymbol(symbol: string): TokenConfig | undefined {
   return TOKENS.find((t) => t.symbol.toLowerCase() === symbol.toLowerCase());
+}
+
+export function getCoingeckoIds(): string {
+  return TOKENS.map((t) => t.coingeckoId).filter(Boolean).join(',');
 }

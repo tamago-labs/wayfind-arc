@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Area } from 'recharts';
 import type { TokenConfig } from '@/lib/tokens';
 
 type Timeframe = '7D' | '30D' | '90D';
 
-const timeframes: { key: Timeframe; label: string; interval: string; count: string }[] = [
-  { key: '7D', label: '7D', interval: '1h', count: '168' },
-  { key: '30D', label: '30D', interval: '4h', count: '180' },
-  { key: '90D', label: '90D', interval: '1d', count: '90' },
+const timeframes: { key: Timeframe; label: string; days: string }[] = [
+  { key: '7D', label: '7D', days: '7' },
+  { key: '30D', label: '30D', days: '30' },
+  { key: '90D', label: '90D', days: '90' },
 ];
 
 export default function PriceChart({ token }: { token: TokenConfig }) {
@@ -19,26 +19,41 @@ export default function PriceChart({ token }: { token: TokenConfig }) {
   const fetchedRef = useRef('');
 
   useEffect(() => {
-    const key = `${token.crypto_id}:${timeframe}`;
+    if (!token.coingeckoId) {
+      setData([]);
+      return;
+    }
+
+    const key = `${token.coingeckoId}:${timeframe}`;
     if (fetchedRef.current === key) return;
     fetchedRef.current = key;
 
     const tf = timeframes.find((t) => t.key === timeframe)!;
     setLoading(true);
 
-    fetch(`/api/price-history?crypto_id=${token.crypto_id}&interval=${tf.interval}&count=${tf.count}`)
+    fetch(`/api/price-history?coingeckoId=${token.coingeckoId}&days=${tf.days}`)
       .then((res) => res.json())
       .then((json) => {
         setData(json.data ?? []);
       })
       .catch(() => setData([]))
       .finally(() => setLoading(false));
-  }, [timeframe, token.crypto_id]);
+  }, [timeframe, token.coingeckoId]);
 
   const chartData = data.map((d) => ({
     date: new Date(d.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     price: d.price,
   }));
+
+  if (!token.coingeckoId) {
+    return (
+      <div className="bg-surface border border-border3/50 rounded-2xl p-5">
+        <div className="h-[300px] flex items-center justify-center">
+          <span className="text-xs text-white/30">No chart data available for {token.symbol}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-surface border border-border3/50 rounded-2xl p-5">
