@@ -4,11 +4,10 @@ import { z } from "zod";
 
 export const ArcGetPricesTool: McpTool = {
   name: "arc_get_prices",
-  description: "Get token prices from CoinGecko by symbol. Supports: USDC, EURC, cirBTC, WETH.",
-  schema: {
-    symbols: z.array(z.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])"),
-  },
-  handler: async (agent: Agent, input: Record<string, any>) => {
-    return agent.getPrices(input.symbols);
+  description: "Get all token prices from CoinGecko. Returns prices for all configured tokens on the current chain (USDC, EURC, cirBTC, WETH).",
+  schema: {},
+  handler: async (agent: Agent, _input: Record<string, any>) => {
+    const symbols = agent.getPriceSymbols();
+    return agent.getPrices(symbols);
   },
 };

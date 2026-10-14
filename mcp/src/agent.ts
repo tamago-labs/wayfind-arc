@@ -90,6 +90,10 @@ export class Agent {
     return result;
   }
 
+  getPriceSymbols(): string[] {
+    return this.tokens.map((t) => t.symbol);
+  }
+
   async sendTokens(symbol: string, to: string, amount: string): Promise<any> {
     const token = this.getToken(symbol);
     if (!token) throw new Error(`Unknown token: ${symbol}`);
