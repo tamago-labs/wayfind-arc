@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react';
 import { usePrice } from '@/contexts/PriceContext';
+import { useEarn } from '@/contexts/EarnContext';
+import { useBorrow } from '@/contexts/BorrowContext';
 import { TOKENS } from '@/lib/tokens';
 
 type SortKey = 'symbol' | 'name' | 'price' | 'percentChange24h' | 'percentChange7d' | 'percentChange30d' | 'marketCap' | 'volume24h';
@@ -45,6 +47,8 @@ function formatChange(value: number | null): string {
 
 export default function ExplorePage() {
   const { getPrice, loading: priceLoading } = usePrice();
+  const { getBestApy } = useEarn();
+  const { getBestBorrowApy } = useBorrow();
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('volume24h');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -139,8 +143,14 @@ export default function ExplorePage() {
                     Token <SortIcon column="symbol" />
                   </button>
                 </th>
-                <th className="text-left px-4 py-3 font-medium">
-                  <button onClick={() => handleSort('price')} className="flex items-center gap-1 justify-start hover:text-white/50 transition-colors">
+                <th className="text-right px-4 py-3 font-medium">
+                  <span className="text-white/30 normal-case">Earn%</span>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <span className="text-white/30 normal-case">Borrow%</span>
+                </th>
+                <th className="text-right px-4 py-3 font-medium">
+                  <button onClick={() => handleSort('price')} className="flex items-center gap-1 justify-end w-full hover:text-white/50 transition-colors">
                     Price <SortIcon column="price" />
                   </button>
                 </th>
@@ -157,12 +167,12 @@ export default function ExplorePage() {
                 </th>
                 <th className="text-right px-4 py-3 font-medium">
                   <button onClick={() => handleSort('percentChange30d')} className="flex items-center gap-1 justify-end w-full hover:text-white/50 transition-colors">
-                    1m% <SortIcon column="percentChange30d" />
+                    30d% <SortIcon column="percentChange30d" />
                   </button>
                 </th>
                 <th className="text-right px-4 py-3 font-medium">
                   <button onClick={() => handleSort('marketCap')} className="flex items-center gap-1 justify-end w-full hover:text-white/50 transition-colors">
-                    MCap <SortIcon column="marketCap" />
+                    Market Cap <SortIcon column="marketCap" />
                   </button>
                 </th>
                 <th className="text-right px-4 py-3 font-medium">
@@ -190,10 +200,21 @@ export default function ExplorePage() {
                       </div>
                     </div>
                   </td>
+                      <td className="px-4 py-3 text-right text-white/60 font-medium">
+                    {(() => {
+                      const apy = getBestApy(row.symbol);
+                      return apy != null ? `${(apy * 100).toFixed(2)}%` : '—';
+                    })()}
+                  </td>
+                  <td className="px-4 py-3 text-right text-white/60 font-medium">
+                    {(() => {
+                      const borrowApy = getBestBorrowApy(row.symbol);
+                      return borrowApy != null ? `${(borrowApy * 100).toFixed(2)}%` : '—';
+                    })()}
+                  </td>
                   <td className="px-4 py-3 text-right text-white/70">
                     {row.price != null ? formatPrice(row.price) : '—'}
                   </td>
-
                   <td className={`px-4 py-3 text-right font-medium ${row.percentChange24h != null ? row.percentChange24h >= 0 ? 'text-emerald-400' : 'text-red-400' : 'text-white/30'}`}>
                     {formatChange(row.percentChange24h)}
                   </td>

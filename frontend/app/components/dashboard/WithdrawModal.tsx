@@ -15,7 +15,7 @@ interface WithdrawModalProps {
 }
 
 export default function WithdrawModal({ open, onClose, selectedChain }: WithdrawModalProps) {
-  const { getAdapter, chainId, getRawProvider } = useWallet();
+  const { getAdapter, chainId } = useWallet();
 
   const chainMismatch = chainId !== selectedChain.id;
   const [amount, setAmount] = useState('');

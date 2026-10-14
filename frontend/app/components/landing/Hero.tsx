@@ -39,7 +39,7 @@ export default function Hero() {
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
               <span className="flex items-center gap-1 text-[13px] text-white/35">
-                Send &amp; Receive Across <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png" alt="USDC" className="w-4 h-4 inline-block rounded-full" /> <span className="text-accent font-semibold">10+ Chains</span>
+                Send &amp; Receive <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png" alt="USDC" className="w-4 h-4 inline-block rounded-full" /> <span className="text-accent font-semibold">Across 10+ Chains</span>
               </span>
             </li>
             <li className="flex items-center gap-2">

@@ -8,8 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const navItems = [
   { href: '/dashboard', label: 'New Chat', icon: Plus },
-  { href: '/dashboard/portfolio', label: 'Portfolio', icon: PieChart },
   { href: '/dashboard/explore', label: 'Explore', icon: Compass },
+  { href: '/dashboard/portfolio', label: 'Portfolio', icon: PieChart },
   { href: '/dashboard/grok-bot', label: 'Use in Grok Bot', icon: Bot },
   { href: '/dashboard/chats', label: 'Saved Chats', icon: Archive },
 ];

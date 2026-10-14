@@ -59,19 +59,23 @@ export default function UnifiedBalance({ selectedChain }: UnifiedBalanceProps) {
         onMouseEnter={() => setShowBreakdown(true)}
         onMouseLeave={() => setShowBreakdown(false)}
       >
-        <div className="flex items-baseline gap-2">
-          <p className="text-2xl font-semibold cursor-help">
-            {loading ? '— USDC' : balance ? `${balance.totalConfirmed} USDC` : '0.00 USDC'}
-          </p>
-          {(() => {
-            if (loading || !balance) return null;
-            const usdcPrice = getPrice('USDC');
-            const usdValue = usdcPrice
-              ? '$' + (parseFloat(balance.totalConfirmed.replace(',', '')) * usdcPrice.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : null;
-            return usdValue ? <span className="text-[13px] text-white/30">{usdValue}</span> : null;
-          })()}
-        </div>
+        {loading ? (
+          <div className="shimmer h-7 w-36 mt-1" />
+        ) : (
+          <div className="flex items-baseline gap-2">
+            <p className="text-2xl font-semibold cursor-help">
+              {balance ? `${balance.totalConfirmed} USDC` : '0.00 USDC'}
+            </p>
+            {(() => {
+              if (!balance) return null;
+              const usdcPrice = getPrice('USDC');
+              const usdValue = usdcPrice
+                ? '$' + (parseFloat(balance.totalConfirmed.replace(',', '')) * usdcPrice.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : null;
+              return usdValue ? <span className="text-[13px] text-white/30">{usdValue}</span> : null;
+            })()}
+          </div>
+        )}
 
         <AnimatePresence>
           {showBreakdown && balance && balance.chains.length > 0 && (
