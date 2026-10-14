@@ -1,6 +1,6 @@
 {
   "name": "@tamago-labs/wayfind-arc-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -13,10 +13,9 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@circle-fin/adapter-ethers-v6": "^1.0.0",
-    "@circle-fin/unified-balance-kit": "^1.0.0",
-    "@circle-fin/swap-kit": "^1.0.0",
-    "@circle-fin/earn-kit": "^1.0.0",
+    "@circle-fin/adapter-ethers-v6": "^1.12.1",
+    "@circle-fin/unified-balance-kit": "^1.8.0",
+    "@circle-fin/app-kit": "^1.16.0",
     "@modelcontextprotocol/sdk": "^1.10.2",
     "ethers": "^6.13.0",
     "zod": "^3.24.3"
