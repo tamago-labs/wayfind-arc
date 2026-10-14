@@ -227,6 +227,53 @@ export class Agent {
     return prices;
   }
 
+  async listEarnVaults(symbol?: string): Promise<any> {
+    const { createEarnKitContext, exploreVaults } = await import("@circle-fin/earn-kit");
+    const context = createEarnKitContext();
+
+    const result = await exploreVaults(context, {
+      chain: getCircleChainName(this.config),
+      sortBy: "apy",
+    });
+
+    const vaults = (result.vaults || []).map((v: any) => ({
+      vaultAddress: v.vaultAddress,
+      name: v.name,
+      protocol: v.protocol,
+      asset: v.asset,
+      currentApy: v.currentApy ?? 0,
+      status: v.status,
+      totalDeposits: v.totalDeposits ?? "0",
+      liquidity: v.liquidity ?? "0",
+    }));
+
+    if (symbol) {
+      return vaults.filter((v: any) => v.asset.toLowerCase() === symbol.toLowerCase());
+    }
+    return vaults;
+  }
+
+  async getEarnPosition(vaultAddress: string): Promise<any> {
+    const adapter = await this.getAdapter();
+    const { createEarnKitContext, getPosition } = await import("@circle-fin/earn-kit");
+    const context = createEarnKitContext();
+
+    const pos = await getPosition(context, {
+      from: { adapter, chain: getCircleChainName(this.config) },
+      vaultAddress,
+    });
+
+    if (!pos) return null;
+
+    return {
+      vaultAddress,
+      currentBalance: pos.currentBalance ?? "0",
+      shares: pos.shares ?? "0",
+      principalDeposited: pos.pnl?.status === "available" ? pos.pnl.principalDeposited : "0",
+      totalYieldEarned: pos.pnl?.status === "available" ? pos.pnl.totalYieldEarned : "0",
+    };
+  }
+
   async swapTokens(fromSymbol: string, toSymbol: string, amount: string, slippagePercent: string = "0.5"): Promise<any> {
     const adapter = await this.getAdapter();
     const { createSwapKitContext, swap } = await import("@circle-fin/swap-kit");
@@ -243,35 +290,30 @@ export class Agent {
     return result;
   }
 
-  async earnDeposit(symbol: string, amount: string, vaultAddress?: string): Promise<any> {
+  async earnDeposit(amount: string, vaultAddress: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createEarnKitContext, deposit } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
-    const params: any = {
+    const result = await deposit(context, {
       from: { adapter, chain: getCircleChainName(this.config) },
+      vaultAddress,
       amount,
-      tokenSymbol: symbol,
-    };
-    if (vaultAddress) params.vaultAddress = vaultAddress;
+    });
 
-    const result = await deposit(context, params);
     return result;
   }
 
-  async earnWithdraw(symbol: string, amount: string, vaultAddress?: string): Promise<any> {
+  async earnWithdraw(amount: string, vaultAddress: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createEarnKitContext, withdraw } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
-    const params: any = {
+    const result = await withdraw(context, {
       from: { adapter, chain: getCircleChainName(this.config), address: this.walletAddress },
+      vaultAddress,
       amount,
-      tokenSymbol: symbol,
-    };
-    if (vaultAddress) params.vaultAddress = vaultAddress;
-
-    const result = await withdraw(context, params);
+    });
     return result;
   }
 }

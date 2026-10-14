@@ -10,6 +10,8 @@ import { ArcGetPricesTool } from "./arc/get_prices_tool";
 import { ArcSwapTokensTool } from "./arc/swap_tokens_tool";
 import { ArcEarnDepositTool } from "./arc/earn_deposit_tool";
 import { ArcEarnWithdrawTool } from "./arc/earn_withdraw_tool";
+import { ArcListEarnVaultsTool } from "./arc/list_earn_vaults_tool";
+import { ArcGetEarnPositionTool } from "./arc/get_earn_position_tool";
 
 export const McpTools: Record<string, McpTool> = {
   ArcGetWalletAddress: ArcGetWalletAddressTool,
@@ -23,4 +25,6 @@ export const McpTools: Record<string, McpTool> = {
   ArcSwapTokens: ArcSwapTokensTool,
   ArcEarnDeposit: ArcEarnDepositTool,
   ArcEarnWithdraw: ArcEarnWithdrawTool,
+  ArcListEarnVaults: ArcListEarnVaultsTool,
+  ArcGetEarnPosition: ArcGetEarnPositionTool,
 };

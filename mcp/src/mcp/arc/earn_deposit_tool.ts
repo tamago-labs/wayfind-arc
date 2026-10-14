@@ -4,13 +4,12 @@ import { z } from "zod";
 
 export const ArcEarnDepositTool: McpTool = {
   name: "arc_earn_deposit",
-  description: "Deposit tokens into a Circle Earn vault to earn yield. Symbol is resolved from token config.",
+  description: "Deposit USDC into a Circle Earn vault. Use arc_list_earn_vaults to find vault addresses.",
   schema: {
-    symbol: z.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
-    amount: z.string().describe("Amount to deposit"),
-    vaultAddress: z.string().optional().describe("Specific vault address (auto-selected if omitted)"),
+    amount: z.string().describe("Amount to deposit (e.g. '100.5')"),
+    vaultAddress: z.string().describe("Vault address to deposit into (from arc_list_earn_vaults)"),
   },
-  handler: async (agent: Agent, input: Record<string, any>) => {
-    return agent.earnDeposit(input.symbol, input.amount, input?.vaultAddress);
+  handler: async (agent: Agent, input: any) => {
+    return agent.earnDeposit(input.amount, input.vaultAddress);
   },
 };
