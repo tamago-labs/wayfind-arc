@@ -4,11 +4,9 @@ import { z } from "zod";
 
 export const ArcGetBalanceTool: McpTool = {
   name: "arc_get_balance",
-  description: "Get USDC and token balances for the Arc wallet. Optionally pass a symbol (e.g. 'USDC', 'cirBTC') to check a specific token.",
-  schema: {
-    symbol: z.string().optional().describe("Token symbol (e.g. 'USDC', 'WETH'). Omit for all tokens."),
-  },
-  handler: async (agent: Agent, input: Record<string, any>) => {
-    return agent.getBalance(input?.symbol);
+  description: "Get all token balances for the Arc wallet. Returns USDC and all tokens configured for the current chain (mainnet or testnet).",
+  schema: {},
+  handler: async (agent: Agent, _input: Record<string, any>) => {
+    return agent.getBalance();
   },
 };

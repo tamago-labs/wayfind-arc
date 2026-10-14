@@ -41,27 +41,24 @@ var ArcGetWalletAddressTool = {
 };
 
 // src/mcp/arc/get_balance_tool.ts
-var import_zod = require("zod");
 var ArcGetBalanceTool = {
   name: "arc_get_balance",
-  description: "Get USDC and token balances for the Arc wallet. Optionally pass a symbol (e.g. 'USDC', 'cirBTC') to check a specific token.",
-  schema: {
-    symbol: import_zod.z.string().optional().describe("Token symbol (e.g. 'USDC', 'WETH'). Omit for all tokens.")
-  },
-  handler: async (agent, input) => {
-    return agent.getBalance(input?.symbol);
+  description: "Get all token balances for the Arc wallet. Returns USDC and all tokens configured for the current chain (mainnet or testnet).",
+  schema: {},
+  handler: async (agent, _input) => {
+    return agent.getBalance();
   }
 };
 
 // src/mcp/arc/send_tokens_tool.ts
-var import_zod2 = require("zod");
+var import_zod = require("zod");
 var ArcSendTokensTool = {
   name: "arc_send_tokens",
   description: "Send tokens on Arc to a specific address. Symbol is resolved from token config (e.g. 'USDC', 'cirBTC', 'WETH').",
   schema: {
-    symbol: import_zod2.z.string().describe("Token symbol (e.g. 'USDC', 'WETH')"),
-    to: import_zod2.z.string().describe("Recipient address (0x...)"),
-    amount: import_zod2.z.string().describe("Amount to send (e.g. '100.5')")
+    symbol: import_zod.z.string().describe("Token symbol (e.g. 'USDC', 'WETH')"),
+    to: import_zod.z.string().describe("Recipient address (0x...)"),
+    amount: import_zod.z.string().describe("Amount to send (e.g. '100.5')")
   },
   handler: async (agent, input) => {
     return agent.sendTokens(input.symbol, input.to, input.amount);
@@ -69,12 +66,12 @@ var ArcSendTokensTool = {
 };
 
 // src/mcp/arc/deposit_unified_tool.ts
-var import_zod3 = require("zod");
+var import_zod2 = require("zod");
 var ArcDepositUnifiedBalanceTool = {
   name: "arc_deposit_unified_balance",
   description: "Deposit USDC into Circle Unified Balance on Arc. This makes the USDC available for cross-chain spending.",
   schema: {
-    amount: import_zod3.z.string().describe("Amount of USDC to deposit (e.g. '100.5')")
+    amount: import_zod2.z.string().describe("Amount of USDC to deposit (e.g. '100.5')")
   },
   handler: async (agent, input) => {
     return agent.depositUnifiedBalance(input.amount);
@@ -82,14 +79,14 @@ var ArcDepositUnifiedBalanceTool = {
 };
 
 // src/mcp/arc/spend_unified_tool.ts
-var import_zod4 = require("zod");
+var import_zod3 = require("zod");
 var ArcSpendUnifiedBalanceTool = {
   name: "arc_spend_unified_balance",
   description: "Spend/withdraw USDC from Circle Unified Balance. Can send to a different address and optionally bridge to another chain (e.g. 'Ethereum', 'Solana', 'Base').",
   schema: {
-    amount: import_zod4.z.string().describe("Amount of USDC to spend/withdraw"),
-    recipient: import_zod4.z.string().optional().describe("Recipient address (defaults to sender)"),
-    targetChain: import_zod4.z.string().optional().describe("Target chain for cross-chain transfer (e.g. 'Ethereum', 'Solana', 'Base', 'Arbitrum')")
+    amount: import_zod3.z.string().describe("Amount of USDC to spend/withdraw"),
+    recipient: import_zod3.z.string().optional().describe("Recipient address (defaults to sender)"),
+    targetChain: import_zod3.z.string().optional().describe("Target chain for cross-chain transfer (e.g. 'Ethereum', 'Solana', 'Base', 'Arbitrum')")
   },
   handler: async (agent, input) => {
     return agent.spendUnifiedBalance(input.amount, input?.recipient, input?.targetChain);
@@ -97,12 +94,12 @@ var ArcSpendUnifiedBalanceTool = {
 };
 
 // src/mcp/arc/get_prices_tool.ts
-var import_zod5 = require("zod");
+var import_zod4 = require("zod");
 var ArcGetPricesTool = {
   name: "arc_get_prices",
   description: "Get token prices from CoinGecko by symbol. Supports: USDC, EURC, cirBTC, WETH.",
   schema: {
-    symbols: import_zod5.z.array(import_zod5.z.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])")
+    symbols: import_zod4.z.array(import_zod4.z.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])")
   },
   handler: async (agent, input) => {
     return agent.getPrices(input.symbols);
@@ -110,15 +107,15 @@ var ArcGetPricesTool = {
 };
 
 // src/mcp/arc/swap_tokens_tool.ts
-var import_zod6 = require("zod");
+var import_zod5 = require("zod");
 var ArcSwapTokensTool = {
   name: "arc_swap_tokens",
   description: "Swap tokens on Arc via Circle Swap Kit. Symbol is resolved from token config (e.g. 'USDC', 'WETH', 'cirBTC').",
   schema: {
-    fromSymbol: import_zod6.z.string().describe("Token to swap from (e.g. 'WETH')"),
-    toSymbol: import_zod6.z.string().describe("Token to swap to (e.g. 'USDC')"),
-    amount: import_zod6.z.string().describe("Amount of from token to swap"),
-    slippagePercent: import_zod6.z.string().optional().describe("Slippage tolerance (default: '0.5')")
+    fromSymbol: import_zod5.z.string().describe("Token to swap from (e.g. 'WETH')"),
+    toSymbol: import_zod5.z.string().describe("Token to swap to (e.g. 'USDC')"),
+    amount: import_zod5.z.string().describe("Amount of from token to swap"),
+    slippagePercent: import_zod5.z.string().optional().describe("Slippage tolerance (default: '0.5')")
   },
   handler: async (agent, input) => {
     return agent.swapTokens(input.fromSymbol, input.toSymbol, input.amount, input?.slippagePercent);
@@ -126,14 +123,14 @@ var ArcSwapTokensTool = {
 };
 
 // src/mcp/arc/earn_deposit_tool.ts
-var import_zod7 = require("zod");
+var import_zod6 = require("zod");
 var ArcEarnDepositTool = {
   name: "arc_earn_deposit",
   description: "Deposit tokens into a Circle Earn vault to earn yield. Symbol is resolved from token config.",
   schema: {
-    symbol: import_zod7.z.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
-    amount: import_zod7.z.string().describe("Amount to deposit"),
-    vaultAddress: import_zod7.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: import_zod6.z.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
+    amount: import_zod6.z.string().describe("Amount to deposit"),
+    vaultAddress: import_zod6.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnDeposit(input.symbol, input.amount, input?.vaultAddress);
@@ -141,14 +138,14 @@ var ArcEarnDepositTool = {
 };
 
 // src/mcp/arc/earn_withdraw_tool.ts
-var import_zod8 = require("zod");
+var import_zod7 = require("zod");
 var ArcEarnWithdrawTool = {
   name: "arc_earn_withdraw",
   description: "Withdraw tokens from a Circle Earn vault. Symbol is resolved from token config.",
   schema: {
-    symbol: import_zod8.z.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
-    amount: import_zod8.z.string().describe("Amount to withdraw"),
-    vaultAddress: import_zod8.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: import_zod7.z.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
+    amount: import_zod7.z.string().describe("Amount to withdraw"),
+    vaultAddress: import_zod7.z.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnWithdraw(input.symbol, input.amount, input?.vaultAddress);
@@ -290,16 +287,13 @@ var Agent = class _Agent {
       capabilities: {}
     });
   }
-  async getBalance(symbol) {
-    const ethBalance = await this.provider.getBalance(this.walletAddress);
+  async getBalance() {
     const result = {
       walletAddress: this.walletAddress,
-      nativeBalance: import_ethers.ethers.formatEther(ethBalance),
       chain: this.config.chain,
       tokens: []
     };
-    const tokensToCheck = symbol ? this.tokens.filter((t) => t.symbol.toUpperCase() === symbol.toUpperCase()) : this.tokens;
-    for (const token of tokensToCheck) {
+    for (const token of this.tokens) {
       const address = this.getTokenAddress(token.symbol);
       if (!address) continue;
       try {
@@ -310,7 +304,8 @@ var Agent = class _Agent {
           symbol: token.symbol,
           address,
           balance: formatted,
-          decimals: token.decimals
+          decimals: token.decimals,
+          isNative: token.symbol === "USDC"
         });
       } catch {
       }

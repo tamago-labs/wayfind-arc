@@ -18,27 +18,24 @@ var ArcGetWalletAddressTool = {
 };
 
 // src/mcp/arc/get_balance_tool.ts
-import { z } from "zod";
 var ArcGetBalanceTool = {
   name: "arc_get_balance",
-  description: "Get USDC and token balances for the Arc wallet. Optionally pass a symbol (e.g. 'USDC', 'cirBTC') to check a specific token.",
-  schema: {
-    symbol: z.string().optional().describe("Token symbol (e.g. 'USDC', 'WETH'). Omit for all tokens.")
-  },
-  handler: async (agent, input) => {
-    return agent.getBalance(input?.symbol);
+  description: "Get all token balances for the Arc wallet. Returns USDC and all tokens configured for the current chain (mainnet or testnet).",
+  schema: {},
+  handler: async (agent, _input) => {
+    return agent.getBalance();
   }
 };
 
 // src/mcp/arc/send_tokens_tool.ts
-import { z as z2 } from "zod";
+import { z } from "zod";
 var ArcSendTokensTool = {
   name: "arc_send_tokens",
   description: "Send tokens on Arc to a specific address. Symbol is resolved from token config (e.g. 'USDC', 'cirBTC', 'WETH').",
   schema: {
-    symbol: z2.string().describe("Token symbol (e.g. 'USDC', 'WETH')"),
-    to: z2.string().describe("Recipient address (0x...)"),
-    amount: z2.string().describe("Amount to send (e.g. '100.5')")
+    symbol: z.string().describe("Token symbol (e.g. 'USDC', 'WETH')"),
+    to: z.string().describe("Recipient address (0x...)"),
+    amount: z.string().describe("Amount to send (e.g. '100.5')")
   },
   handler: async (agent, input) => {
     return agent.sendTokens(input.symbol, input.to, input.amount);
@@ -46,12 +43,12 @@ var ArcSendTokensTool = {
 };
 
 // src/mcp/arc/deposit_unified_tool.ts
-import { z as z3 } from "zod";
+import { z as z2 } from "zod";
 var ArcDepositUnifiedBalanceTool = {
   name: "arc_deposit_unified_balance",
   description: "Deposit USDC into Circle Unified Balance on Arc. This makes the USDC available for cross-chain spending.",
   schema: {
-    amount: z3.string().describe("Amount of USDC to deposit (e.g. '100.5')")
+    amount: z2.string().describe("Amount of USDC to deposit (e.g. '100.5')")
   },
   handler: async (agent, input) => {
     return agent.depositUnifiedBalance(input.amount);
@@ -59,14 +56,14 @@ var ArcDepositUnifiedBalanceTool = {
 };
 
 // src/mcp/arc/spend_unified_tool.ts
-import { z as z4 } from "zod";
+import { z as z3 } from "zod";
 var ArcSpendUnifiedBalanceTool = {
   name: "arc_spend_unified_balance",
   description: "Spend/withdraw USDC from Circle Unified Balance. Can send to a different address and optionally bridge to another chain (e.g. 'Ethereum', 'Solana', 'Base').",
   schema: {
-    amount: z4.string().describe("Amount of USDC to spend/withdraw"),
-    recipient: z4.string().optional().describe("Recipient address (defaults to sender)"),
-    targetChain: z4.string().optional().describe("Target chain for cross-chain transfer (e.g. 'Ethereum', 'Solana', 'Base', 'Arbitrum')")
+    amount: z3.string().describe("Amount of USDC to spend/withdraw"),
+    recipient: z3.string().optional().describe("Recipient address (defaults to sender)"),
+    targetChain: z3.string().optional().describe("Target chain for cross-chain transfer (e.g. 'Ethereum', 'Solana', 'Base', 'Arbitrum')")
   },
   handler: async (agent, input) => {
     return agent.spendUnifiedBalance(input.amount, input?.recipient, input?.targetChain);
@@ -74,12 +71,12 @@ var ArcSpendUnifiedBalanceTool = {
 };
 
 // src/mcp/arc/get_prices_tool.ts
-import { z as z5 } from "zod";
+import { z as z4 } from "zod";
 var ArcGetPricesTool = {
   name: "arc_get_prices",
   description: "Get token prices from CoinGecko by symbol. Supports: USDC, EURC, cirBTC, WETH.",
   schema: {
-    symbols: z5.array(z5.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])")
+    symbols: z4.array(z4.string()).describe("Array of token symbols (e.g. ['USDC', 'WETH', 'cirBTC'])")
   },
   handler: async (agent, input) => {
     return agent.getPrices(input.symbols);
@@ -87,15 +84,15 @@ var ArcGetPricesTool = {
 };
 
 // src/mcp/arc/swap_tokens_tool.ts
-import { z as z6 } from "zod";
+import { z as z5 } from "zod";
 var ArcSwapTokensTool = {
   name: "arc_swap_tokens",
   description: "Swap tokens on Arc via Circle Swap Kit. Symbol is resolved from token config (e.g. 'USDC', 'WETH', 'cirBTC').",
   schema: {
-    fromSymbol: z6.string().describe("Token to swap from (e.g. 'WETH')"),
-    toSymbol: z6.string().describe("Token to swap to (e.g. 'USDC')"),
-    amount: z6.string().describe("Amount of from token to swap"),
-    slippagePercent: z6.string().optional().describe("Slippage tolerance (default: '0.5')")
+    fromSymbol: z5.string().describe("Token to swap from (e.g. 'WETH')"),
+    toSymbol: z5.string().describe("Token to swap to (e.g. 'USDC')"),
+    amount: z5.string().describe("Amount of from token to swap"),
+    slippagePercent: z5.string().optional().describe("Slippage tolerance (default: '0.5')")
   },
   handler: async (agent, input) => {
     return agent.swapTokens(input.fromSymbol, input.toSymbol, input.amount, input?.slippagePercent);
@@ -103,14 +100,14 @@ var ArcSwapTokensTool = {
 };
 
 // src/mcp/arc/earn_deposit_tool.ts
-import { z as z7 } from "zod";
+import { z as z6 } from "zod";
 var ArcEarnDepositTool = {
   name: "arc_earn_deposit",
   description: "Deposit tokens into a Circle Earn vault to earn yield. Symbol is resolved from token config.",
   schema: {
-    symbol: z7.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
-    amount: z7.string().describe("Amount to deposit"),
-    vaultAddress: z7.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: z6.string().describe("Token symbol to deposit (e.g. 'USDC', 'WETH')"),
+    amount: z6.string().describe("Amount to deposit"),
+    vaultAddress: z6.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnDeposit(input.symbol, input.amount, input?.vaultAddress);
@@ -118,14 +115,14 @@ var ArcEarnDepositTool = {
 };
 
 // src/mcp/arc/earn_withdraw_tool.ts
-import { z as z8 } from "zod";
+import { z as z7 } from "zod";
 var ArcEarnWithdrawTool = {
   name: "arc_earn_withdraw",
   description: "Withdraw tokens from a Circle Earn vault. Symbol is resolved from token config.",
   schema: {
-    symbol: z8.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
-    amount: z8.string().describe("Amount to withdraw"),
-    vaultAddress: z8.string().optional().describe("Specific vault address (auto-selected if omitted)")
+    symbol: z7.string().describe("Token symbol to withdraw (e.g. 'USDC', 'WETH')"),
+    amount: z7.string().describe("Amount to withdraw"),
+    vaultAddress: z7.string().optional().describe("Specific vault address (auto-selected if omitted)")
   },
   handler: async (agent, input) => {
     return agent.earnWithdraw(input.symbol, input.amount, input?.vaultAddress);
@@ -267,16 +264,13 @@ var Agent = class _Agent {
       capabilities: {}
     });
   }
-  async getBalance(symbol) {
-    const ethBalance = await this.provider.getBalance(this.walletAddress);
+  async getBalance() {
     const result = {
       walletAddress: this.walletAddress,
-      nativeBalance: ethers.formatEther(ethBalance),
       chain: this.config.chain,
       tokens: []
     };
-    const tokensToCheck = symbol ? this.tokens.filter((t) => t.symbol.toUpperCase() === symbol.toUpperCase()) : this.tokens;
-    for (const token of tokensToCheck) {
+    for (const token of this.tokens) {
       const address = this.getTokenAddress(token.symbol);
       if (!address) continue;
       try {
@@ -287,7 +281,8 @@ var Agent = class _Agent {
           symbol: token.symbol,
           address,
           balance: formatted,
-          decimals: token.decimals
+          decimals: token.decimals,
+          isNative: token.symbol === "USDC"
         });
       } catch {
       }

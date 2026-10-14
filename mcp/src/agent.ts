@@ -60,18 +60,14 @@ export class Agent {
     });
   }
 
-  async getBalance(symbol?: string): Promise<any> {
-    const ethBalance = await this.provider.getBalance(this.walletAddress);
+  async getBalance(): Promise<any> {
     const result: any = {
       walletAddress: this.walletAddress,
-      nativeBalance: ethers.formatEther(ethBalance),
       chain: this.config.chain,
       tokens: [],
     };
 
-    const tokensToCheck = symbol ? this.tokens.filter((t) => t.symbol.toUpperCase() === symbol.toUpperCase()) : this.tokens;
-
-    for (const token of tokensToCheck) {
+    for (const token of this.tokens) {
       const address = this.getTokenAddress(token.symbol);
       if (!address) continue;
 
@@ -84,6 +80,7 @@ export class Agent {
           address,
           balance: formatted,
           decimals: token.decimals,
+          isNative: token.symbol === "USDC",
         });
       } catch {
         // skip token if error
