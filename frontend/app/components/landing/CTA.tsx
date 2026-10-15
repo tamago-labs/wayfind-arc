@@ -15,13 +15,13 @@ export default function CTA() {
                 Turn Grok Bot into a 24/7 Onchain Operator
               </h2>
               <p className="mt-4 text-[15px] text-white/45">
-                Deposit USDC, earn yield, swap tokens, and send across 12+ chains — all through your bot.
+                One-click Grok Bot templates to turn always-on AI teammates into onchain operators on Arc.
               </p>
               <a
                 href="/dashboard"
                 className="mt-8 inline-flex items-center justify-center gap-2 w-full md:w-auto text-[15px] font-medium bg-accent text-white px-8 py-4 rounded-lg hover:bg-accent/80 transition-colors"
               >
-                Get Started <ArrowRight className="w-4 h-4" />
+                Try Dashboard <ArrowRight className="w-4 h-4" />
               </a>
             </div>
           </div>

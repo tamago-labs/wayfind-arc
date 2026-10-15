@@ -20,14 +20,13 @@ export default function VideoSection() {
         </Section>
 
         <div className="relative rounded-2xl overflow-hidden border border-border3 bg-black/30">
-          <video
-            src="/wayfind-video.mp4"
-            controls
-            playsInline
-            className="w-full h-auto"
-          >
-            Your browser does not support the video tag.
-          </video>
+          <iframe
+            src="https://www.youtube.com/embed/Lqn_t6TYxv4"
+            title="Wayfind Arc Demo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full aspect-video"
+          />
         </div>
       </div>
     </section>

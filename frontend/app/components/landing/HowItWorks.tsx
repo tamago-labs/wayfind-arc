@@ -12,19 +12,19 @@ const steps = [
   {
     num: '02',
     title: 'Set up your bot',
-    description: <>Name your bot and ask the bot to <span className="text-white/70 font-medium">start setup</span>. You can provide your own private key if omit the MCP will <span className="text-white/70 font-medium">auto-create</span> a new wallet inside bot's computer for you.</>,
+    description: <>Name your bot and ask the bot to <span className="text-white/70 font-medium">start setup</span>. Wallet credentials stay on the bot's computer.</>,
     example: null,
   },
   {
     num: '03',
     title: 'Put your bot to work',
-    description: <>Turn your bot into an <span className="text-white/70 font-medium">onchain operator</span> that queries protocol data, a <span className="text-white/70 font-medium">publisher</span> that posts onchain content, or an <span className="text-white/70 font-medium">automator</span> that handles tasks like USDC payroll and payslips — 24/7.</>,
+    description: <>Build a bot team. Name a <span className="text-white/70 font-medium">CFO</span> to manage treasury, an <span className="text-white/70 font-medium">HR</span> to run payroll, a <span className="text-white/70 font-medium">Research</span> to track data. They coordinate tasks and execute onchain around the clock.</>,
     example: null,
   },
   {
     num: '04',
     title: 'Use on other platforms',
-    description: <>Wayfind works natively with Grok Bot. For other AI platforms, import <span className="text-white/70 font-medium">Agent Skills</span> or set up <span className="text-white/70 font-medium">MCP</span> to connect.</>,
+    description: <>Wayfind works natively with Grok Bot. For other AI tools, use <span className="text-white/70 font-medium">Agent Skills</span> from our GitHub repo or configure <span className="text-white/70 font-medium">MCP</span> on your own.</>,
     example: null,
   },
 ];
