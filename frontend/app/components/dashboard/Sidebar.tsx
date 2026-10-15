@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Plus, PieChart, Compass, Bot, Archive, Menu, X } from 'lucide-react';
+import { Plus, PieChart, Compass, Bot, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navItems = [
@@ -11,7 +11,6 @@ const navItems = [
   { href: '/dashboard/explore', label: 'Explore', icon: Compass },
   { href: '/dashboard/portfolio', label: 'Portfolio', icon: PieChart },
   { href: '/dashboard/grok-bot', label: 'Use in Grok Bot', icon: Bot },
-  { href: '/dashboard/chats', label: 'Saved Chats', icon: Archive },
 ];
 
 export default function Sidebar() {
