@@ -1,14 +1,15 @@
-'use client';
-
-import { use } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { TOKENS } from '@/lib/tokens';
 import TokenDetailClient from '@/components/dashboard/token-detail/TokenDetailClient';
 
-export default function TokenDetailPage({ params }: { params: Promise<{ symbol: string }> }) {
-  const { symbol } = use(params);
+export function generateStaticParams() {
+  return TOKENS.map((t) => ({ symbol: t.symbol }));
+}
+
+export default async function TokenDetailPage({ params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol } = await params;
   const token = TOKENS.find((t) => t.symbol === symbol);
 
   if (!token) {
