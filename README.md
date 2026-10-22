@@ -85,7 +85,7 @@ npm run dev
 cd mcp
 npm install
 npm run build
-ARC_PRIVATE_KEY=0x... ARC_CHAIN=mainnet npm start
+WALLET_PASSKEY="your-secure-passphrase" ARC_CHAIN=mainnet npm start
 ```
 
 ### Install on Grok Bot
@@ -93,7 +93,7 @@ ARC_PRIVATE_KEY=0x... ARC_CHAIN=mainnet npm start
 Add the MCP server to your Grok Bot environment:
 
 ```
-ARC_PRIVATE_KEY=0x...
+WALLET_PASSKEY="your-secure-passphrase"
 ARC_CHAIN=mainnet
 ```
 
@@ -111,7 +111,7 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
         "type": "local",
         "command": ["npx", "-y", "@tamago-labs/wayfind-arc-mcp"],
         "environment": {
-          "ARC_PRIVATE_KEY": "your_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }
@@ -129,7 +129,7 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
       "command": "npx",
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
-        "ARC_PRIVATE_KEY": "your_key_here",
+        "WALLET_PASSKEY": "your-secure-passphrase",
         "ARC_CHAIN": "mainnet"
       }
     }
@@ -143,7 +143,7 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
 
 | Tool | Description |
 |------|-------------|
-| `arc_get_wallet_address` | Get wallet address from private key |
+| `arc_get_wallet_address` | Get wallet address from encrypted wallet |
 | `arc_get_balance` | Get all token balances (USDC, WETH, cirBTC) |
 | `arc_send_tokens` | Send tokens by symbol to an address |
 

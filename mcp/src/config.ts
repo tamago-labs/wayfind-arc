@@ -91,11 +91,6 @@ function decryptBuffer(payload: Buffer, key: Buffer): Buffer {
 }
 
 async function loadOrCreateWalletKey(): Promise<{ seed: Uint8Array; mnemonic: string | null }> {
-  if (process.env.ARC_PRIVATE_KEY) {
-    const key = process.env.ARC_PRIVATE_KEY.replace(/^0x/, "");
-    return { seed: new Uint8Array(Buffer.from(key, "hex")), mnemonic: null };
-  }
-
   if (existsSync(WALLET_FILE)) {
     const raw: StoredWallet = JSON.parse(readFileSync(WALLET_FILE, "utf-8"));
 
@@ -116,9 +111,8 @@ async function loadOrCreateWalletKey(): Promise<{ seed: Uint8Array; mnemonic: st
   const passkey = process.env.WALLET_PASSKEY;
   if (!passkey) {
     throw new Error(
-      "WALLET_PASSKEY environment variable is required for wallet creation.\n" +
-      "Set it before running the MCP server.\n" +
-      "Example: export WALLET_PASSKEY=\"your-secure-passphrase\"\n" +
+      "WALLET_PASSKEY environment variable is required.\n" +
+      "Set it before running the MCP server to auto-generate an encrypted wallet.\n" +
       "Must be at least 12 characters."
     );
   }
@@ -133,7 +127,8 @@ async function loadOrCreateWalletKey(): Promise<{ seed: Uint8Array; mnemonic: st
 
   sodium.sodium_memzero(key);
 
-  const evmWallet = new Wallet(Buffer.from(seed).toString("hex"));
+  const evmPrivateKey = Buffer.from(seed.subarray(0, 32)).toString("hex");
+  const evmWallet = new Wallet(evmPrivateKey);
 
   if (!existsSync(WALLET_DIR)) {
     mkdirSync(WALLET_DIR, { recursive: true, mode: 0o700 });
@@ -160,7 +155,7 @@ export async function loadArcConfig(): Promise<ArcConfig> {
 
   const { seed } = await loadOrCreateWalletKey();
 
-  const privateKey = "0x" + Buffer.from(seed).toString("hex");
+  const privateKey = "0x" + Buffer.from(seed.subarray(0, 32)).toString("hex");
   const wallet = new Wallet(privateKey);
 
   process.on("exit", () => seed.fill(0));

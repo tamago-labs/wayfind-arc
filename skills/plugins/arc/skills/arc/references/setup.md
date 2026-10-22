@@ -3,7 +3,6 @@
 ## Prerequisites
 
 - Node.js v22+
-- An EVM wallet private key (0x...)
 
 ## Installation
 
@@ -25,10 +24,12 @@ npm run build
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ARC_PRIVATE_KEY` | Yes | — | EVM private key (0x...) |
+| `WALLET_PASSKEY` | Yes | — | Passphrase (12+ chars) to auto-generate encrypted wallet |
 | `ARC_CHAIN` | No | `mainnet` | Chain: `mainnet` or `testnet` |
 | `ARC_RPC_URL` | No | Built-in | Custom Arc RPC endpoint |
 | `ARC_EXPLORER_URL` | No | Built-in | Custom block explorer URL |
+
+On first run, the server generates a BIP39 mnemonic wallet, encrypts it with `WALLET_PASSKEY`, and stores it in `~/.wayfind-arc/.wallet.json`. The mnemonic backup is written to `~/.wayfind-arc/BACKUP_AND_REMOVE.txt` — save it securely and delete the file.
 
 ## OpenCode Configuration
 
@@ -43,7 +44,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
         "type": "local",
         "command": ["npx", "-y", "@tamago-labs/wayfind-arc-mcp"],
         "environment": {
-          "ARC_PRIVATE_KEY": "your_private_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }
@@ -61,7 +62,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
       "command": "npx",
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
-        "ARC_PRIVATE_KEY": "your_private_key_here",
+        "WALLET_PASSKEY": "your-secure-passphrase",
         "ARC_CHAIN": "mainnet"
       }
     }
@@ -79,7 +80,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
         "command": "npx",
         "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
         "env": {
-          "ARC_PRIVATE_KEY": "your_private_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }
@@ -96,6 +97,14 @@ For testnet, set `ARC_CHAIN=testnet` and get testnet tokens from [Circle Faucet]
 2. Test deposits, swaps, and earn on testnet
 3. Switch to mainnet for production
 
+## Wallet Recovery
+
+If the wallet file is lost, recover from the mnemonic backup:
+
+```bash
+WALLET_PASSKEY="your-passphrase" OVERWRITE_WALLET=1 npx tsx scripts/recover-wallet.ts "mnemonic words here"
+```
+
 ## Verify Setup
 
 After configuration, restart your MCP client and run:
@@ -104,4 +113,4 @@ After configuration, restart your MCP client and run:
 arc_get_wallet_address
 ```
 
-This should return your wallet address derived from the private key.
+This should return your wallet address derived from the encrypted wallet.

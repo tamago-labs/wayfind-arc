@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
-        "ARC_PRIVATE_KEY": "${ARC_PRIVATE_KEY}",
+        "WALLET_PASSKEY": "${WALLET_PASSKEY}",
         "ARC_CHAIN": "${ARC_CHAIN}"
       }
     }

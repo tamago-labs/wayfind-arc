@@ -26,10 +26,18 @@ npm install -g @tamago-labs/wayfind-arc-mcp
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ARC_PRIVATE_KEY` | Yes | — | EVM private key (0x...) |
+| `WALLET_PASSKEY` | Yes | — | Passphrase (12+ chars) to auto-generate encrypted wallet |
 | `ARC_CHAIN` | No | `mainnet` | Chain: `mainnet` or `testnet` |
 | `ARC_RPC_URL` | No | Built-in | Custom Arc RPC endpoint |
 | `ARC_EXPLORER_URL` | No | Built-in | Custom block explorer URL |
+
+On first run, the server generates a BIP39 mnemonic wallet, encrypts it with `WALLET_PASSKEY`, and stores it in `~/.wayfind-arc/.wallet.json`. The mnemonic backup is written to `~/.wayfind-arc/BACKUP_AND_REMOVE.txt` — save it securely and delete the file.
+
+### Wallet Recovery
+
+```bash
+WALLET_PASSKEY="your-passphrase" OVERWRITE_WALLET=1 npx tsx scripts/recover-wallet.ts "mnemonic words"
+```
 
 ### OpenCode
 
@@ -45,7 +53,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
         "command": ["node", "/absolute/path/to/wayfind-arc/mcp/dist/index.js"],
         "cwd": "/absolute/path/to/wayfind-arc/mcp",
         "environment": {
-          "ARC_PRIVATE_KEY": "your_private_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }
@@ -65,7 +73,7 @@ Or with npx:
         "type": "local",
         "command": ["npx", "-y", "@tamago-labs/wayfind-arc-mcp"],
         "environment": {
-          "ARC_PRIVATE_KEY": "your_private_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }
@@ -83,7 +91,7 @@ Or with npx:
       "command": "npx",
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
-        "ARC_PRIVATE_KEY": "your_private_key_here",
+        "WALLET_PASSKEY": "your-secure-passphrase",
         "ARC_CHAIN": "mainnet"
       }
     }
@@ -101,7 +109,7 @@ Or with npx:
         "command": "npx",
         "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
         "env": {
-          "ARC_PRIVATE_KEY": "your_private_key_here",
+          "WALLET_PASSKEY": "your-secure-passphrase",
           "ARC_CHAIN": "mainnet"
         }
       }

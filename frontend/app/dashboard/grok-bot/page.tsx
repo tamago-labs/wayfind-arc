@@ -22,8 +22,8 @@ export default function GrokBotPage() {
           <p className="text-[13px] text-white/40 mb-3">Set these in your bot environment:</p>
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <code className="text-[12px] text-accent font-mono">ARC_PRIVATE_KEY</code>
-              <span className="text-[12px] text-white/30">Your Arc wallet private key</span>
+              <code className="text-[12px] text-accent font-mono">WALLET_PASSKEY</code>
+              <span className="text-[12px] text-white/30">Secure passphrase (12+ chars)</span>
             </div>
             <div className="flex items-center gap-3">
               <code className="text-[12px] text-accent font-mono">ARC_CHAIN</code>

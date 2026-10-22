@@ -34,7 +34,7 @@ Quick start:
 npm install -g @tamago-labs/wayfind-arc-mcp
 ```
 
-Set `ARC_PRIVATE_KEY` and optionally `ARC_CHAIN` (mainnet/testnet).
+Set `WALLET_PASSKEY` (12+ chars) to auto-generate an encrypted wallet, and optionally `ARC_CHAIN` (mainnet/testnet).
 
 ## Tool routing
 
