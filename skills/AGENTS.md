@@ -42,7 +42,7 @@ The MCP server is published as [`@tamago-labs/wayfind-arc-mcp`](https://www.npmj
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `ARC_PRIVATE_KEY` | Yes | — | EVM private key (0x...) |
-| `ARC_CHAIN` | No | `mainnet` | Chain: `mainnet` or `testnet` |
+| `WAYFIND_NETWORK` | No | `mainnet` | Chain: `mainnet` or `testnet` |
 | `ARC_RPC_URL` | No | Built-in | Custom Arc RPC endpoint |
 | `ARC_EXPLORER_URL` | No | Built-in | Custom block explorer URL |
 

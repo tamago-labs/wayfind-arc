@@ -25,7 +25,7 @@ npm run build
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `WALLET_PASSKEY` | Yes | — | Passphrase (12+ chars) to auto-generate encrypted wallet |
-| `ARC_CHAIN` | No | `mainnet` | Chain: `mainnet` or `testnet` |
+| `WAYFIND_NETWORK` | No | `mainnet` | Chain: `mainnet` or `testnet` |
 | `ARC_RPC_URL` | No | Built-in | Custom Arc RPC endpoint |
 | `ARC_EXPLORER_URL` | No | Built-in | Custom block explorer URL |
 
@@ -45,7 +45,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
         "command": ["npx", "-y", "@tamago-labs/wayfind-arc-mcp"],
         "environment": {
           "WALLET_PASSKEY": "your-secure-passphrase",
-          "ARC_CHAIN": "mainnet"
+          "WAYFIND_NETWORK": "mainnet"
         }
       }
     }
@@ -63,7 +63,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
         "WALLET_PASSKEY": "your-secure-passphrase",
-        "ARC_CHAIN": "mainnet"
+        "WAYFIND_NETWORK": "mainnet"
       }
     }
   }
@@ -81,7 +81,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
         "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
         "env": {
           "WALLET_PASSKEY": "your-secure-passphrase",
-          "ARC_CHAIN": "mainnet"
+          "WAYFIND_NETWORK": "mainnet"
         }
       }
     }
@@ -91,7 +91,7 @@ Add to `~/.config/opencode/opencode.jsonc`:
 
 ## Testnet Setup
 
-For testnet, set `ARC_CHAIN=testnet` and get testnet tokens from [Circle Faucet](https://faucet.circle.com/):
+For testnet, set `WAYFIND_NETWORK=testnet` and get testnet tokens from [Circle Faucet](https://faucet.circle.com/):
 
 1. Fund wallet with testnet USDC
 2. Test deposits, swaps, and earn on testnet

@@ -34,78 +34,63 @@ Quick start:
 npm install -g @tamago-labs/wayfind-arc-mcp
 ```
 
-Set `WALLET_PASSKEY` (12+ chars) to auto-generate an encrypted wallet, and optionally `ARC_CHAIN` (mainnet/testnet).
+Set `WALLET_PASSKEY` (12+ chars) to auto-generate an encrypted wallet, and optionally `WAYFIND_NETWORK` (mainnet/testnet).
 
 ## Tool routing
 
-Arc exposes 13 MCP tools. Route by user intent:
+Arc exposes 12 MCP tools. Route by user intent:
 
-### Wallet operations
-
-| User intent | Tool |
-|---|---|
-| "What's my wallet address?" | `arc_get_wallet_address` |
-| "Show my balances" | `arc_get_balance` |
-| "Send X to address" | `arc_send_tokens` |
-
-### Unified Balance
+### Shared
 
 | User intent | Tool |
 |---|---|
-| "Check my unified balance" | `arc_get_unified_balance` |
-| "What chains can I send to?" | `arc_get_supported_chains` |
-| "Deposit X USDC to unified balance" | `arc_deposit_unified_balance` |
-| "Send X USDC to [chain]" | `arc_spend_unified_balance` |
+| "What's my wallet address?" | `get_wallet_address` |
+| "Show my balances" | `get_balances` |
+| "Send X to address" | `send_tokens` |
+| "Check transaction status" | `get_transaction` |
 
-### Swap & Earn
-
-| User intent | Tool |
-|---|---|
-| "Swap X to Y" | `arc_swap_tokens` |
-| "Show earn vaults" | `arc_list_earn_vaults` |
-| "Deposit X to earn vault" | `arc_earn_deposit` |
-| "Check my earn position" | `arc_get_earn_position` |
-| "Withdraw X from earn vault" | `arc_earn_withdraw` |
-
-### Prices
+### Unified Balance & DeFi
 
 | User intent | Tool |
 |---|---|
-| "What are the token prices?" | `arc_get_prices` |
+| "Check my unified balance" | `get_unified_balance` |
+| "Deposit X USDC to unified balance" | `deposit_unified_balance` |
+| "Send X USDC to [chain]" | `spend_unified_balance` |
+| "Swap X to Y" | `swap_tokens` |
+| "Show earn vaults" | `list_earn_vaults` |
+| "Deposit X to earn vault" | `earn_deposit` |
+| "Check my earn position" | `get_earn_position` |
+| "Withdraw X from earn vault" | `earn_withdraw` |
 
 ## Intent-based routing
 
 **Balance check intent** ("check my balance", "show my wallet", "what do I have"):
-- Use `arc_get_balance` to get all token balances (USDC, WETH, cirBTC)
+- Use `get_balances` to get token balances for a specific chain
 
 **Deposit intent** ("deposit to unified balance", "add to unified balance"):
-1. Use `arc_get_balance` to confirm available USDC
-2. Use `arc_deposit_unified_balance` with the amount
+1. Use `get_balances` to confirm available USDC
+2. Use `deposit_unified_balance` with sourceChain and amount
 
 **Cross-chain spend intent** ("send to Ethereum", "bridge to Base"):
-1. Use `arc_get_unified_balance` to check available balance
-2. Use `arc_get_supported_chains` to list available chains
-3. Use `arc_spend_unified_balance` with amount and targetChain
+1. Use `get_unified_balance` to check available balance
+2. Use `spend_unified_balance` with sourceChain, amount, and targetChain
 
 **Swap intent** ("swap X to Y", "trade X for Y"):
-1. Use `arc_swap_tokens` with fromSymbol, toSymbol, amount
+1. Use `swap_tokens` with chain, fromSymbol, toSymbol, amount
 
 **Earn intent** ("earn yield", "deposit to vault", "show vaults"):
-1. Use `arc_list_earn_vaults` to show available vaults with APY
-2. Use `arc_earn_deposit` to deposit to the chosen vault
-3. Use `arc_get_earn_position` to check balance and yield
-4. Use `arc_earn_withdraw` to withdraw
-
-**Price intent** ("what's the price", "token prices"):
-- Use `arc_get_prices` to get all token prices from CoinGecko
+1. Use `list_earn_vaults` to show available vaults with APY
+2. Use `earn_deposit` to deposit to the chosen vault
+3. Use `get_earn_position` to check balance and yield
+4. Use `earn_withdraw` to withdraw
 
 ## Execution rules
 
-1. For deposits, always check `arc_get_balance` first to confirm funds
-2. For cross-chain spends, always check `arc_get_supported_chains` for valid chain names
-3. For earn deposits, always list vaults first with `arc_list_earn_vaults` to show APY
-4. For earn withdrawals, check position first with `arc_get_earn_position`
-5. Token symbols: USDC, WETH, cirBTC, EURC (resolved from built-in config)
+1. For deposits, always check `get_balances` first to confirm funds
+2. For cross-chain spends, always specify sourceChain and targetChain
+3. For earn deposits, always list vaults first with `list_earn_vaults` to show APY
+4. For earn withdrawals, check position first with `get_earn_position`
+5. Token symbols: USDC, WETH, cirBTC, EURC (resolved from built-in config per chain)
 6. Cross-chain transfers burn USDC on source chain and mint on destination chain via Circle Gateway
 
 ## Response format

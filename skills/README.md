@@ -42,7 +42,7 @@ npm install -g @tamago-labs/wayfind-arc-mcp
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `WALLET_PASSKEY` | Yes | — | Passphrase (12+ chars) to auto-generate encrypted wallet |
-| `ARC_CHAIN` | No | `mainnet` | `mainnet` or `testnet` |
+| `WAYFIND_NETWORK` | No | `mainnet` | `mainnet` or `testnet` |
 
 On first run, a BIP39 mnemonic wallet is generated, encrypted with `WALLET_PASSKEY`, and stored in `~/.wayfind-arc/.wallet.json`. The mnemonic backup is written to `~/.wayfind-arc/BACKUP_AND_REMOVE.txt`.
 

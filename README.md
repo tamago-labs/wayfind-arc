@@ -85,7 +85,7 @@ npm run dev
 cd mcp
 npm install
 npm run build
-WALLET_PASSKEY="your-secure-passphrase" ARC_CHAIN=mainnet npm start
+WALLET_PASSKEY="your-secure-passphrase" WAYFIND_NETWORK=mainnet npm start
 ```
 
 ### Install on Grok Bot
@@ -94,7 +94,7 @@ Add the MCP server to your Grok Bot environment:
 
 ```
 WALLET_PASSKEY="your-secure-passphrase"
-ARC_CHAIN=mainnet
+WAYFIND_NETWORK=mainnet
 ```
 
 Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide you through wallet setup.
@@ -112,7 +112,7 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
         "command": ["npx", "-y", "@tamago-labs/wayfind-arc-mcp"],
         "environment": {
           "WALLET_PASSKEY": "your-secure-passphrase",
-          "ARC_CHAIN": "mainnet"
+          "WAYFIND_NETWORK": "mainnet"
         }
       }
     }
@@ -130,7 +130,7 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
         "WALLET_PASSKEY": "your-secure-passphrase",
-        "ARC_CHAIN": "mainnet"
+        "WAYFIND_NETWORK": "mainnet"
       }
     }
   }
@@ -139,44 +139,32 @@ Then ask your bot: *"Set up Wayfind"* — it will install the tools and guide yo
 
 ## MCP Tools
 
-### Wallet
+### Shared (Chain-Agnostic)
 
 | Tool | Description |
 |------|-------------|
-| `arc_get_wallet_address` | Get wallet address from encrypted wallet |
-| `arc_get_balance` | Get all token balances (USDC, WETH, cirBTC) |
-| `arc_send_tokens` | Send tokens by symbol to an address |
+| `get_wallet_address` | Get wallet addresses for all supported chains |
+| `get_balances` | Get token balances for a specific chain |
+| `send_tokens` | Send tokens on a specific chain |
+| `get_transaction` | Get tx details and status |
 
-### Unified Balance
-
-| Tool | Description |
-|------|-------------|
-| `arc_get_unified_balance` | Check total USDC and chain breakdown |
-| `arc_get_supported_chains` | List chains available for cross-chain transfers |
-| `arc_deposit_unified_balance` | Deposit USDC into Unified Balance |
-| `arc_spend_unified_balance` | Withdraw/spend USDC, optionally cross-chain |
-
-### Swap & Earn
+### Circle Unified Balance & DeFi
 
 | Tool | Description |
 |------|-------------|
-| `arc_swap_tokens` | Swap tokens via Circle Swap Kit |
-| `arc_list_earn_vaults` | List available earn vaults with APY |
-| `arc_earn_deposit` | Deposit into an earn vault |
-| `arc_get_earn_position` | Check position (balance, shares, yield) |
-| `arc_earn_withdraw` | Withdraw from an earn vault |
+| `get_unified_balance` | Check total USDC and chain breakdown |
+| `deposit_unified_balance` | Deposit USDC into Unified Balance |
+| `spend_unified_balance` | Withdraw/spend USDC, optionally cross-chain |
+| `swap_tokens` | Swap tokens via Circle Swap Kit |
+| `list_earn_vaults` | List available earn vaults with APY |
+| `earn_deposit` | Deposit into an earn vault |
+| `get_earn_position` | Check vault position (balance, yield) |
+| `earn_withdraw` | Withdraw from an earn vault |
 
-### Prices
+## Supported Chains
 
-| Tool | Description |
-|------|-------------|
-| `arc_get_prices` | Get all token prices from CoinGecko |
-
-## Supported Tokens
-
-| Symbol | Decimals | CoinGecko |
-|--------|----------|-----------|
-| USDC | 6 | usd-coin |
+Testnet: Arc, Ethereum (Sepolia), Base (Sepolia)
+Mainnet: Arc, Ethereum, Base, Arbitrum, Polygon, Avalanche, Optimism, World Chain, Sei
 | EURC | 6 | euro-coin |
 | cirBTC | 8 | circle-wrapped-btc |
 | WETH | 18 | weth |

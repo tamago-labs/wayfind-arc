@@ -26,8 +26,8 @@ export default function GrokBotPage() {
               <span className="text-[12px] text-white/30">Secure passphrase (12+ chars)</span>
             </div>
             <div className="flex items-center gap-3">
-              <code className="text-[12px] text-accent font-mono">ARC_CHAIN</code>
-              <span className="text-[12px] text-white/30">mainnet or testnet</span>
+              <code className="text-[12px] text-accent font-mono">WAYFIND_NETWORK</code>
+              <span className="text-[12px] text-white/30">testnet or mainnet</span>
             </div>
           </div>
         </div>

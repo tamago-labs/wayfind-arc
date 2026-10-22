@@ -5,7 +5,7 @@
       "args": ["-y", "@tamago-labs/wayfind-arc-mcp"],
       "env": {
         "WALLET_PASSKEY": "${WALLET_PASSKEY}",
-        "ARC_CHAIN": "${ARC_CHAIN}"
+        "WAYFIND_NETWORK": "${WAYFIND_NETWORK}"
       }
     }
   }

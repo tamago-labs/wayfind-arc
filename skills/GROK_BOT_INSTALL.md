@@ -16,7 +16,7 @@ After install, set these environment variables in your Bot settings:
 | Variable | Value |
 |----------|-------|
 | `WALLET_PASSKEY` | A secure passphrase (12+ chars) |
-| `ARC_CHAIN` | `mainnet` or `testnet` |
+| `WAYFIND_NETWORK` | `mainnet` or `testnet` |
 
 On first run, the server generates a BIP39 mnemonic wallet, encrypts it with your passphrase, and stores it in `~/.wayfind-arc/.wallet.json`. The mnemonic backup is written to `~/.wayfind-arc/BACKUP_AND_REMOVE.txt` — **save it securely and delete the file**.
 
@@ -36,4 +36,4 @@ The Bot should respond with your Arc wallet address.
 
 ## Testnet
 
-For testing, set `ARC_CHAIN=testnet` and get tokens from [Circle Faucet](https://faucet.circle.com/).
+For testing, set `WAYFIND_NETWORK=testnet` and get tokens from [Circle Faucet](https://faucet.circle.com/).
