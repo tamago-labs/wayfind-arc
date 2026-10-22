@@ -32,12 +32,12 @@ export class Agent {
     this.config = config;
     this.provider = provider;
     this.signer = signer;
-    this.walletAddress = signer.address;
+    this.walletAddress = config.walletAddress;
     this.tokens = tokens as ArcToken[];
   }
 
   static async create(): Promise<Agent> {
-    const config = loadArcConfig();
+    const config = await loadArcConfig();
     const provider = new ethers.JsonRpcProvider(config.rpcUrl);
     const signer = new ethers.Wallet(config.privateKey, provider);
     return new Agent(config, provider, signer);
