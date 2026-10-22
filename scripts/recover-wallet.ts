@@ -1,3 +1,18 @@
+#!/usr/bin/env node
+/**
+ * Wallet Recovery Script
+ *
+ * Recovers a wallet from a BIP39 mnemonic phrase and writes encrypted files to ~/.wayfind-arc/
+ *
+ * Usage:
+ *   WALLET_PASSKEY="new-passphrase" npx tsx scripts/recover-wallet.ts "your 12 word mnemonic here"
+ *   WALLET_PASSKEY="new-passphrase" RECOVERY_MNEMONIC="your phrase" npx tsx scripts/recover-wallet.ts
+ *
+ * Output:
+ *   ~/.wayfind-arc/.wallet.json          — encrypted seed + salt + EVM address
+ *   ~/.wayfind-arc/BACKUP_AND_REMOVE.txt — mnemonic backup
+ */
+
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
@@ -69,7 +84,8 @@ async function main() {
 
   sodium.sodium_memzero(key);
 
-  const evmWallet = new Wallet(Buffer.from(seed).toString("hex"));
+  const evmPrivateKey = Buffer.from(seed.subarray(32, 64)).toString("hex");
+  const evmWallet = new Wallet(evmPrivateKey);
 
   if (!existsSync(WALLET_DIR)) {
     mkdirSync(WALLET_DIR, { recursive: true, mode: 0o700 });

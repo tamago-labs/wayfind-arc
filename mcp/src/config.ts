@@ -127,7 +127,7 @@ async function loadOrCreateWalletKey(): Promise<{ seed: Uint8Array; mnemonic: st
 
   sodium.sodium_memzero(key);
 
-  const evmPrivateKey = Buffer.from(seed.subarray(0, 32)).toString("hex");
+  const evmPrivateKey = Buffer.from(seed.subarray(32, 64)).toString("hex");
   const evmWallet = new Wallet(evmPrivateKey);
 
   if (!existsSync(WALLET_DIR)) {
@@ -155,7 +155,7 @@ export async function loadArcConfig(): Promise<ArcConfig> {
 
   const { seed } = await loadOrCreateWalletKey();
 
-  const privateKey = "0x" + Buffer.from(seed.subarray(0, 32)).toString("hex");
+  const privateKey = "0x" + Buffer.from(seed.subarray(32, 64)).toString("hex");
   const wallet = new Wallet(privateKey);
 
   process.on("exit", () => seed.fill(0));
