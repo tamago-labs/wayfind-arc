@@ -5,34 +5,53 @@ import { randomBytes, pbkdf2Sync } from "crypto";
 import sodium from "sodium-native";
 import * as bip39 from "bip39";
 import { Wallet } from "ethers";
+import arcMainnet from "./data/chains/arc-mainnet.json";
+import arcTestnet from "./data/chains/arc-testnet.json";
+import ethereumMainnet from "./data/chains/ethereum-mainnet.json";
+import ethereumTestnet from "./data/chains/ethereum-testnet.json";
+import baseMainnet from "./data/chains/base-mainnet.json";
+import baseTestnet from "./data/chains/base-testnet.json";
+import arbitrumMainnet from "./data/chains/arbitrum-mainnet.json";
+import avalancheMainnet from "./data/chains/avalanche-mainnet.json";
+import optimismMainnet from "./data/chains/optimism-mainnet.json";
+import polygonMainnet from "./data/chains/polygon-mainnet.json";
+import seiMainnet from "./data/chains/sei-mainnet.json";
+import worldMainnet from "./data/chains/world-mainnet.json";
 
 const WALLET_DIR = join(homedir(), ".wayfind-arc");
 const WALLET_FILE = join(WALLET_DIR, ".wallet.json");
 const BACKUP_FILE = join(WALLET_DIR, "BACKUP_AND_REMOVE.txt");
 
-export interface ArcConfig {
-  chain: "mainnet" | "testnet";
-  rpcUrl: string;
-  explorerUrl: string;
+const CHAIN_CONFIGS: Record<string, ChainConfig> = {
+  "arc-mainnet": arcMainnet,
+  "arc-testnet": arcTestnet,
+  "ethereum-mainnet": ethereumMainnet,
+  "ethereum-testnet": ethereumTestnet,
+  "base-mainnet": baseMainnet,
+  "base-testnet": baseTestnet,
+  "arbitrum-mainnet": arbitrumMainnet,
+  "avalanche-mainnet": avalancheMainnet,
+  "optimism-mainnet": optimismMainnet,
+  "polygon-mainnet": polygonMainnet,
+  "sei-mainnet": seiMainnet,
+  "world-mainnet": worldMainnet,
+};
+
+export type NetworkMode = "testnet" | "mainnet";
+
+export interface ChainConfig {
+  chain: string;
+  network: string;
   chainId: number;
+  nativeCurrency: { symbol: string; name: string; decimals: number };
+  tokens: { symbol: string; name: string; decimals: number; address: string }[];
+}
+
+export interface ArcConfig {
+  network: NetworkMode;
   privateKey: string;
   walletAddress: string;
 }
-
-const CHAIN_CONFIGS: Record<string, { rpcUrl: string; explorerUrl: string; chainId: number; circleChain: string }> = {
-  mainnet: {
-    rpcUrl: "https://rpc.mainnet.arc.io",
-    explorerUrl: "https://explorer.arc.io",
-    chainId: 5042,
-    circleChain: "Arc",
-  },
-  testnet: {
-    rpcUrl: "https://rpc.testnet.arc.io",
-    explorerUrl: "https://explorer.testnet.arc.io",
-    chainId: 5042002,
-    circleChain: "Arc_Testnet",
-  },
-};
 
 interface StoredWallet {
   encryptedSeed: string;
@@ -149,9 +168,58 @@ async function loadOrCreateWalletKey(): Promise<{ seed: Uint8Array; mnemonic: st
   return { seed: new Uint8Array(seed), mnemonic };
 }
 
+export function getNetworkMode(): NetworkMode {
+  return process.env.WAYFIND_NETWORK === "mainnet" ? "mainnet" : "testnet";
+}
+
+export function loadChainConfigs(): ChainConfig[] {
+  return Object.values(CHAIN_CONFIGS);
+}
+
+export function getSupportedChains(network?: NetworkMode): string[] {
+  const net = network ?? getNetworkMode();
+  return Object.values(CHAIN_CONFIGS)
+    .filter((c) => c.network === net)
+    .map((c) => c.chain);
+}
+
+export function getChainConfig(chain: string, network?: NetworkMode): ChainConfig | undefined {
+  const net = network ?? getNetworkMode();
+  return CHAIN_CONFIGS[`${chain}-${net}`];
+}
+
+export function toCircleChain(chain: string): string {
+  const network = getNetworkMode();
+  const mainnetMap: Record<string, string> = {
+    ethereum: "Ethereum",
+    base: "Base",
+    arbitrum: "Arbitrum",
+    polygon: "Polygon",
+    avalanche: "Avalanche",
+    optimism: "Optimism",
+    world: "World_Chain",
+    sei: "Sei",
+    arc: "Arc",
+  };
+
+  const testnetMap: Record<string, string> = {
+    ethereum: "Ethereum_Sepolia",
+    base: "Base_Sepolia",
+    arbitrum: "Arbitrum_Sepolia",
+    polygon: "Polygon_Amoy_Testnet",
+    avalanche: "Avalanche_Testnet",
+    optimism: "Optimism_Sepolia",
+    world: "World_Chain_Sepolia",
+    sei: "Sei_Testnet",
+    arc: "Arc_Testnet",
+  };
+
+  const map = network === "testnet" ? testnetMap : mainnetMap;
+  return map[chain] || chain;
+}
+
 export async function loadArcConfig(): Promise<ArcConfig> {
-  const chain = (process.env.ARC_CHAIN || "mainnet") as "mainnet" | "testnet";
-  const chainConfig = CHAIN_CONFIGS[chain];
+  const network = getNetworkMode();
 
   const { seed } = await loadOrCreateWalletKey();
 
@@ -161,15 +229,8 @@ export async function loadArcConfig(): Promise<ArcConfig> {
   process.on("exit", () => seed.fill(0));
 
   return {
-    chain,
-    rpcUrl: process.env.ARC_RPC_URL || chainConfig.rpcUrl,
-    explorerUrl: process.env.ARC_EXPLORER_URL || chainConfig.explorerUrl,
-    chainId: chainConfig.chainId,
+    network,
     privateKey,
     walletAddress: wallet.address,
   };
-}
-
-export function getCircleChainName(config: ArcConfig): string {
-  return config.chain === "testnet" ? "Arc_Testnet" : "Arc";
 }

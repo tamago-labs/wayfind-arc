@@ -1,17 +1,12 @@
 import { ethers } from "ethers";
 import { createEthersAdapterFromPrivateKey } from "@circle-fin/adapter-ethers-v6";
-import { loadArcConfig, getCircleChainName, type ArcConfig } from "./config";
-import tokens from "./data/arc-tokens.json";
+import { loadArcConfig, toCircleChain, getChainConfig, getSupportedChains, type ArcConfig, type ChainConfig } from "./config";
 
 export interface ArcToken {
   symbol: string;
   name: string;
   decimals: number;
-  coingeckoId: string;
-  addresses: {
-    mainnet: string | null;
-    testnet: string | null;
-  };
+  address: string;
 }
 
 const ERC20_ABI = [
@@ -21,36 +16,67 @@ const ERC20_ABI = [
   "function symbol() view returns (string)",
 ];
 
+const RPC_MAP: Record<string, Record<string, string>> = {
+  arc: { mainnet: "https://rpc.mainnet.arc.io", testnet: "https://rpc.testnet.arc.io" },
+  ethereum: { mainnet: "https://eth.llamarpc.com", testnet: "https://ethereum-sepolia-rpc.publicnode.com" },
+  base: { mainnet: "https://mainnet.base.org", testnet: "https://sepolia.base.org" },
+  arbitrum: { mainnet: "https://arb1.arbitrum.io/rpc", testnet: "https://arbitrum-sepolia-rpc.publicnode.com" },
+  optimism: { mainnet: "https://mainnet.optimism.io", testnet: "https://optimism-sepolia-rpc.publicnode.com" },
+  polygon: { mainnet: "https://polygon-rpc.com", testnet: "https://polygon-amoy-rpc.publicnode.com" },
+  avalanche: { mainnet: "https://avalanche-c-chain-rpc.publicnode.com", testnet: "https://avalanche-fuji-rpc.publicnode.com" },
+  world: { mainnet: "https://worldchain-mainnet.gateway.tenderly.co", testnet: "https://worldchain-sepolia.gateway.tenderly.co" },
+  sei: { mainnet: "https://evm-rpc.sei-apis.com", testnet: "https://evm-rpc-testnet.sei-apis.com" },
+};
+
+const EXPLORER_MAP: Record<string, Record<string, string>> = {
+  arc: { mainnet: "https://explorer.arc.io", testnet: "https://explorer.testnet.arc.io" },
+  ethereum: { mainnet: "https://etherscan.io", testnet: "https://sepolia.etherscan.io" },
+  base: { mainnet: "https://basescan.org", testnet: "https://sepolia.basescan.org" },
+  arbitrum: { mainnet: "https://arbiscan.io", testnet: "https://sepolia.arbiscan.io" },
+  optimism: { mainnet: "https://optimistic.etherscan.io", testnet: "https://sepolia-optimism.etherscan.io" },
+  polygon: { mainnet: "https://polygonscan.com", testnet: "https://amoy.polygonscan.com" },
+  avalanche: { mainnet: "https://snowtrace.io", testnet: "https://testnet.snowtrace.io" },
+  world: { mainnet: "https://worldchain.blockscout.com", testnet: "https://worldchain-sepolia.blockscout.com" },
+  sei: { mainnet: "https://seitrace.com", testnet: "https://seitrace.com" },
+};
+
+function getRpcUrl(chain: string, network: string): string {
+  return RPC_MAP[chain]?.[network] || "https://rpc.mainnet.arc.io";
+}
+
+function getExplorerUrl(chain: string, network: string): string {
+  return EXPLORER_MAP[chain]?.[network] || "https://explorer.arc.io";
+}
+
+function getChainTokens(chain: string, network: string): ArcToken[] {
+  const cfg = getChainConfig(chain, network);
+  return (cfg?.tokens || []).map((t) => ({
+    symbol: t.symbol,
+    name: t.name,
+    decimals: t.decimals,
+    address: t.address,
+  }));
+}
+
 export class Agent {
   public walletAddress: string;
   public config: ArcConfig;
   private provider: ethers.JsonRpcProvider;
   private signer: ethers.Wallet;
-  private tokens: ArcToken[];
 
   private constructor(config: ArcConfig, provider: ethers.JsonRpcProvider, signer: ethers.Wallet) {
     this.config = config;
     this.provider = provider;
     this.signer = signer;
     this.walletAddress = config.walletAddress;
-    this.tokens = tokens as ArcToken[];
   }
 
   static async create(): Promise<Agent> {
     const config = await loadArcConfig();
-    const provider = new ethers.JsonRpcProvider(config.rpcUrl);
+    const rpcUrl = getRpcUrl("arc", config.network);
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
     const signer = new ethers.Wallet(config.privateKey, provider);
     return new Agent(config, provider, signer);
-  }
-
-  private getToken(symbol: string): ArcToken | undefined {
-    return this.tokens.find((t) => t.symbol.toUpperCase() === symbol.toUpperCase());
-  }
-
-  private getTokenAddress(symbol: string): string | null {
-    const token = this.getToken(symbol);
-    if (!token) return null;
-    return this.config.chain === "testnet" ? token.addresses.testnet : token.addresses.mainnet;
   }
 
   private async getAdapter() {
@@ -59,38 +85,92 @@ export class Agent {
     });
   }
 
-  async getBalance(): Promise<any> {
+  async getTransaction(chain: string, txHash: string): Promise<any> {
+    const network = this.config.network;
+    const rpcUrl = getRpcUrl(chain, network);
+
+    try {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const tx = await provider.getTransaction(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+
+      if (!receipt) {
+        return {
+          chain,
+          txHash,
+          status: "pending",
+          from: tx?.from || "unknown",
+          to: tx?.to || "unknown",
+          explorer: getExplorerUrl(chain, network),
+        };
+      }
+
+      return {
+        chain,
+        txHash,
+        status: receipt.status === 1 ? "confirmed" : "failed",
+        blockNumber: receipt.blockNumber,
+        from: receipt.from,
+        to: receipt.to,
+        value: tx?.value ? ethers.formatUnits(tx.value, 18) : "0",
+        gasUsed: receipt.gasUsed?.toString(),
+        explorer: getExplorerUrl(chain, network),
+      };
+    } catch (err: any) {
+      return { error: err?.message || "Failed to fetch transaction" };
+    }
+  }
+
+  async getBalance(chain?: string): Promise<any> {
+    const network = this.config.network;
+    const targetChains = chain ? [chain] : getSupportedChains(network);
+
     const result: any = {
       walletAddress: this.walletAddress,
-      chain: this.config.chain,
-      tokens: [],
+      network,
+      chains: {},
     };
 
-    for (const token of this.tokens) {
-      const address = this.getTokenAddress(token.symbol);
-      if (!address) continue;
+    for (const chainName of targetChains) {
+      const tokens = getChainTokens(chainName, network);
+      const rpcUrl = getRpcUrl(chainName, network);
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
 
-      try {
-        const contract = new ethers.Contract(address, ERC20_ABI, this.provider);
-        const balance = await contract.balanceOf(this.walletAddress);
-        const formatted = ethers.formatUnits(balance, token.decimals);
-        (result.tokens as any[]).push({
-          symbol: token.symbol,
-          address,
-          balance: formatted,
-          decimals: token.decimals,
-          isNative: token.symbol === "USDC",
-        });
-      } catch {
-        // skip token if error
+      const chainBalances: any[] = [];
+      for (const token of tokens) {
+        try {
+          if (!token.address) continue;
+          const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
+          const balance = await contract.balanceOf(this.walletAddress);
+          chainBalances.push({
+            symbol: token.symbol,
+            address: token.address,
+            balance: ethers.formatUnits(balance, token.decimals),
+            decimals: token.decimals,
+          });
+        } catch {
+          // skip token if error
+        }
       }
+
+      const chainResult: any = {
+        chainId: getChainConfig(chainName, network)?.chainId,
+        tokens: chainBalances,
+      };
+
+      if (chainName !== "arc") {
+        const nativeBalance = await provider.getBalance(this.walletAddress);
+        const decimals = getChainConfig(chainName, network)?.nativeCurrency?.decimals || 18;
+        chainResult.native = {
+          symbol: getChainConfig(chainName, network)?.nativeCurrency?.symbol || "ETH",
+          balance: ethers.formatUnits(nativeBalance, decimals),
+        };
+      }
+
+      result.chains[chainName] = chainResult;
     }
 
     return result;
-  }
-
-  getPriceSymbols(): string[] {
-    return this.tokens.map((t) => t.symbol);
   }
 
   async getUnifiedBalance(): Promise<any> {
@@ -98,32 +178,35 @@ export class Agent {
     const { createUnifiedBalanceKitContext, getBalances } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
 
-    const networkType = this.config.chain === "testnet" ? "testnet" : "mainnet";
-
     const result = await getBalances(context, {
       sources: [{ adapter }],
-      networkType,
+      networkType: this.config.network,
       includePending: true,
     });
 
     return result;
   }
 
-  async sendTokens(symbol: string, to: string, amount: string): Promise<any> {
-    const token = this.getToken(symbol);
-    if (!token) throw new Error(`Unknown token: ${symbol}`);
+  async sendTokens(chain: string, symbol: string, to: string, amount: string): Promise<any> {
+    const token = getChainTokens(chain, this.config.network).find(
+      (t) => t.symbol.toUpperCase() === symbol.toUpperCase()
+    );
+    if (!token) throw new Error(`Unknown token: ${symbol} on chain ${chain}`);
+    if (!token.address) throw new Error(`Token ${symbol} has no address on ${chain}`);
 
-    const address = this.getTokenAddress(symbol);
-    if (!address) throw new Error(`Token ${symbol} not available on ${this.config.chain}`);
+    const rpcUrl = getRpcUrl(chain, this.config.network);
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const signer = new ethers.Wallet(this.config.privateKey, provider);
 
-    const contract = new ethers.Contract(address, ERC20_ABI, this.signer);
+    const contract = new ethers.Contract(token.address, ERC20_ABI, signer);
     const parsedAmount = ethers.parseUnits(amount, token.decimals);
     const tx = await contract.transfer(to, parsedAmount);
     const receipt = await tx.wait();
 
     return {
       txHash: tx.hash,
-      explorer: `${this.config.explorerUrl}/tx/${tx.hash}`,
+      explorer: `${getExplorerUrl(chain, this.config.network)}/tx/${tx.hash}`,
+      chain,
       symbol,
       to,
       amount,
@@ -155,13 +238,13 @@ export class Agent {
     };
   }
 
-  async depositUnifiedBalance(amount: string): Promise<any> {
+  async depositUnifiedBalance(chain: string, amount: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, deposit } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
 
     const result = await deposit(context, {
-      from: { adapter, chain: getCircleChainName(this.config) },
+      from: { adapter, chain: toCircleChain(chain) },
       amount,
       token: "USDC",
     });
@@ -169,14 +252,14 @@ export class Agent {
     return result;
   }
 
-  async spendUnifiedBalance(amount: string, recipient?: string, targetChain?: string): Promise<any> {
+  async spendUnifiedBalance(chain: string, amount: string, recipient?: string, targetChain?: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createUnifiedBalanceKitContext, spend } = await import("@circle-fin/unified-balance-kit");
     const context = createUnifiedBalanceKitContext();
 
     const to: any = {
       adapter,
-      chain: getCircleChainName(this.config),
+      chain: toCircleChain(chain),
     };
     if (recipient) to.recipientAddress = recipient;
 
@@ -186,20 +269,28 @@ export class Agent {
       from: [{ adapter }],
       to,
     };
-    if (targetChain) to.chain = targetChain;
+    if (targetChain) to.chain = toCircleChain(targetChain);
 
     const result = await spend(context, params);
     return result;
   }
 
-  async getPrices(symbols: string[]): Promise<any> {
-    const ids = symbols
-      .map((s) => {
-        const token = this.getToken(s);
-        return token?.coingeckoId;
-      })
-      .filter(Boolean)
-      .join(",");
+  getPriceSymbols(chain?: string): string[] {
+    if (chain) {
+      return getChainTokens(chain, this.config.network).map((t) => t.symbol);
+    }
+    const allTokens = new Set<string>();
+    for (const c of getSupportedChains(this.config.network)) {
+      for (const t of getChainTokens(c, this.config.network)) {
+        allTokens.add(t.symbol);
+      }
+    }
+    return Array.from(allTokens);
+  }
+
+  async getPrices(chain?: string): Promise<any> {
+    const symbols = this.getPriceSymbols(chain);
+    const ids = symbols.map((s) => s.toLowerCase()).join(",");
 
     if (!ids) return { error: "No valid symbols" };
 
@@ -213,7 +304,7 @@ export class Agent {
 
     const prices: Record<string, any> = {};
     for (const coin of data) {
-      const symbol = this.tokens.find((t) => t.coingeckoId === coin.id)?.symbol || coin.symbol?.toUpperCase();
+      const symbol = coin.symbol?.toUpperCase() || coin.id;
       prices[symbol] = {
         price: coin.current_price ?? 0,
         marketCap: coin.market_cap ?? 0,
@@ -227,12 +318,12 @@ export class Agent {
     return prices;
   }
 
-  async listEarnVaults(symbol?: string): Promise<any> {
+  async listEarnVaults(chain: string, symbol?: string): Promise<any> {
     const { createEarnKitContext, exploreVaults } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
     const result = await exploreVaults(context, {
-      chain: getCircleChainName(this.config),
+      chain: toCircleChain(chain),
       sortBy: "apy",
     });
 
@@ -253,13 +344,13 @@ export class Agent {
     return vaults;
   }
 
-  async getEarnPosition(vaultAddress: string): Promise<any> {
+  async getEarnPosition(chain: string, vaultAddress: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createEarnKitContext, getPosition } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
     const pos = await getPosition(context, {
-      from: { adapter, chain: getCircleChainName(this.config) },
+      from: { adapter, chain: toCircleChain(chain) },
       vaultAddress,
     });
 
@@ -274,13 +365,13 @@ export class Agent {
     };
   }
 
-  async swapTokens(fromSymbol: string, toSymbol: string, amount: string, slippagePercent: string = "0.5"): Promise<any> {
+  async swapTokens(chain: string, fromSymbol: string, toSymbol: string, amount: string, slippagePercent: string = "0.5"): Promise<any> {
     const adapter = await this.getAdapter();
     const { createSwapKitContext, swap } = await import("@circle-fin/swap-kit");
     const context = createSwapKitContext();
 
     const result = await swap(context, {
-      from: { adapter, chain: getCircleChainName(this.config) },
+      from: { adapter, chain: toCircleChain(chain) },
       fromSymbol,
       toSymbol,
       amount,
@@ -290,13 +381,13 @@ export class Agent {
     return result;
   }
 
-  async earnDeposit(amount: string, vaultAddress: string): Promise<any> {
+  async earnDeposit(chain: string, amount: string, vaultAddress: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createEarnKitContext, deposit } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
     const result = await deposit(context, {
-      from: { adapter, chain: getCircleChainName(this.config) },
+      from: { adapter, chain: toCircleChain(chain) },
       vaultAddress,
       amount,
     });
@@ -304,16 +395,17 @@ export class Agent {
     return result;
   }
 
-  async earnWithdraw(amount: string, vaultAddress: string): Promise<any> {
+  async earnWithdraw(chain: string, amount: string, vaultAddress: string): Promise<any> {
     const adapter = await this.getAdapter();
     const { createEarnKitContext, withdraw } = await import("@circle-fin/earn-kit");
     const context = createEarnKitContext();
 
     const result = await withdraw(context, {
-      from: { adapter, chain: getCircleChainName(this.config), address: this.walletAddress },
+      from: { adapter, chain: toCircleChain(chain), address: this.walletAddress },
       vaultAddress,
       amount,
     });
+
     return result;
   }
 }
